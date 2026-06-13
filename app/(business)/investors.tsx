@@ -7,15 +7,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
 import { BUSINESSES, INVESTMENTS, formatCurrency } from "@/constants/mockData";
+import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
 
 export default function BusinessInvestors() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { currentBusiness } = useSystemData();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 
-  const business = BUSINESSES[0];
+  const business = currentBusiness ?? BUSINESSES[0];
   const backers = INVESTMENTS.filter((inv) => inv.businessId === business.id);
   const totalRaised = backers.reduce((sum, inv) => sum + inv.amountInvested, 0);
 

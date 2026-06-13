@@ -105,6 +105,12 @@ function ClassicTabLayout() {
             isIOS ? <SymbolView name="person.circle" tintColor={color} size={22} /> : <Feather name="user" size={22} color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="dispute"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

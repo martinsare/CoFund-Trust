@@ -11,6 +11,16 @@ import { useAuth } from "@/context/AuthContext";
 import { INVESTMENTS, formatCurrency } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
 
+type MenuItem = {
+  icon: React.ComponentProps<typeof Feather>["name"];
+  label: string;
+  sub: string;
+  onPress: (r: typeof router) => void;
+  badge?: string;
+  badgeGreen?: boolean;
+  badgeAmber?: boolean;
+};
+
 const MENU_SECTIONS = [
   {
     title: "Investing",
@@ -32,12 +42,13 @@ const MENU_SECTIONS = [
   {
     title: "Support",
     items: [
+      { icon: "alert-circle" as const, label: "Raise Concern", sub: "File a dispute or complaint", onPress: (r: typeof router) => r.push("/(investor)/dispute") },
       { icon: "lock" as const, label: "Security", sub: "Password & 2FA", onPress: (_r: typeof router) => {} },
       { icon: "help-circle" as const, label: "Help & Support", sub: "FAQs and contact", onPress: (_r: typeof router) => {} },
       { icon: "file-text" as const, label: "Terms & Privacy", sub: "Legal documents", onPress: (_r: typeof router) => {} },
     ],
   },
-];
+] satisfies { title: string; items: MenuItem[] }[];
 
 export default function InvestorProfile() {
   const colors = useColors();
@@ -135,7 +146,7 @@ export default function InvestorProfile() {
         <FadeSlideIn key={section.title} delay={240 + si * 80}>
           <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>{section.title}</Text>
           <View style={[styles.menuCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            {section.items.map((item, idx) => (
+            {section.items.map((item: MenuItem, idx) => (
               <PressableScale
                 key={item.label}
                 onPress={() => item.onPress(router)}

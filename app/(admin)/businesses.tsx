@@ -1,12 +1,14 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
-import { BUSINESSES, BrfrStatus, KYB_STAGES } from "@/constants/mockData";
+import { BrfrStatus, KYB_STAGES } from "@/constants/mockData";
+import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
 
 type Filter = "All" | "Verified" | "Pending KYB" | "At Risk";
@@ -25,7 +27,7 @@ export default function AdminBusinesses() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
-  const [businesses, setBusinesses] = useState(BUSINESSES);
+  const { businesses, updateBusiness } = useSystemData();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("All");
 
@@ -44,10 +46,6 @@ export default function AdminBusinesses() {
   const atRiskCount   = businesses.filter((b) => b.brfrStatus === "orange" || b.brfrStatus === "red").length;
   const watchCount    = businesses.filter((b) => b.brfrStatus === "yellow").length;
 
-  const updateBusiness = (id: string, patch: Partial<(typeof BUSINESSES)[number]>) => {
-    setBusinesses((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)));
-  };
-
   return (
     <ScrollView
       style={[styles.root, { backgroundColor: colors.background }]}
@@ -56,8 +54,17 @@ export default function AdminBusinesses() {
     >
       <Animated.View entering={FadeInDown.delay(0).duration(500)} style={styles.header}>
         <Text style={[styles.title, { color: colors.foreground }]}>Businesses</Text>
-        <View style={[styles.totalBadge, { backgroundColor: "#f3effe" }]}>
-          <Text style={[styles.totalText, { color: "#7c3aed" }]}>{BUSINESSES.length} total</Text>
+        <View style={styles.headerActions}>
+          <View style={[styles.totalBadge, { backgroundColor: "#f3effe" }]}>
+            <Text style={[styles.totalText, { color: "#7c3aed" }]}>{businesses.length} total</Text>
+          </View>
+          <PressableScale
+            style={[styles.addBtn, { backgroundColor: "#7c3aed", borderColor: "#7c3aed" }]}
+            onPress={() => router.push("/(admin)/create-business")}
+          >
+            <Feather name="plus" size={14} color="#fff" />
+            <Text style={styles.addBtnText}>Add Business</Text>
+          </PressableScale>
         </View>
       </Animated.View>
 
@@ -271,8 +278,11 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20 },
   header: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 },
   title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold", flex: 1 },
+  headerActions: { flexDirection: "row", alignItems: "center", gap: 8 },
   totalBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 100 },
   totalText: { fontSize: 12, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  addBtn: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, borderWidth: 1 },
+  addBtnText: { color: "#fff", fontSize: 12, fontWeight: "700", fontFamily: "Inter_700Bold" },
   summaryRow: { flexDirection: "row", gap: 8, marginBottom: 10 },
   summaryCard: { flex: 1, borderRadius: 10, padding: 10, alignItems: "center" },
   summaryVal: { fontSize: 18, fontWeight: "800", fontFamily: "Inter_700Bold" },

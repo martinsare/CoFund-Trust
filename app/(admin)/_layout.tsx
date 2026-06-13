@@ -76,6 +76,18 @@ export default function AdminLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="create-business"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="disputes"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

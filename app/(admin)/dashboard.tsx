@@ -2,44 +2,48 @@ import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
-import { Alert, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
 import { useAuth } from "@/context/AuthContext";
-import { BUSINESSES, INVESTMENTS, formatCurrency } from "@/constants/mockData";
+import { INVESTMENTS, formatCurrency } from "@/constants/mockData";
+import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
 
 const PLATFORM_STATS = [
-  { label: "Total Users",      value: "1,248",  icon: "users" as const,       color: "#7c3aed", change: "+12 this week" },
-  { label: "Active Businesses",value: "87",     icon: "briefcase" as const,   color: "#1a5e9a", change: "+4 this week" },
-  { label: "Total Invested",   value: "₦2.4B",  icon: "trending-up" as const, color: "#2db56e", change: "+₦180M this month" },
+  { label: "Total Users", value: "1,248", icon: "users" as const, color: "#7c3aed", change: "+12 this week" },
+  { label: "Active Businesses", value: "87", icon: "briefcase" as const, color: "#1a5e9a", change: "+4 this week" },
+  { label: "Total Invested", value: "₦2.4B", icon: "trending-up" as const, color: "#2db56e", change: "+₦180M this month" },
   { label: "Platform Revenue", value: "₦48.2M", icon: "dollar-sign" as const, color: "#c9860d", change: "+₦6.1M this month" },
 ];
 
 const PENDING_ACTIONS = [
-  { type: "kyb",     label: "GreenHouse Agro Ltd",          sub: "Stage 2 KYB — director IDs & BVN submitted, awaiting AML screen", icon: "shield" as const,         color: "#e08c1a" },
-  { type: "kyb",     label: "TechBridge Solutions",          sub: "Stage 1 eligibility review — CAC cert received",                 icon: "file-text" as const,      color: "#e08c1a" },
-  { type: "brfr",    label: "TechHub Coworking Network",     sub: "BRRF: Orange — missed Q1 milestone, recovery plan requested",     icon: "alert-triangle" as const,  color: "#e06030" },
-  { type: "payout",  label: "Investor Payout Batch #14",     sub: "₦12.4M scheduled for escrow release — approve now",              icon: "dollar-sign" as const,     color: "#2db56e" },
-  { type: "dispute", label: "Dispute: INV-0042",             sub: "Investor raised concern on Lagos Pharma milestone 3",             icon: "alert-circle" as const,    color: "#e03e3e" },
+  { type: "kyb", label: "GreenHouse Agro Ltd", sub: "Stage 2 KYB — director IDs & BVN submitted, awaiting AML screen", icon: "shield" as const, color: "#e08c1a", route: "/(admin)/businesses" as const },
+  { type: "kyb", label: "TechBridge Solutions", sub: "Stage 1 eligibility review — CAC cert received", icon: "file-text" as const, color: "#e08c1a", route: "/(admin)/businesses" as const },
+  { type: "brfr", label: "TechHub Coworking Network", sub: "BRRF: Orange — missed Q1 milestone, recovery plan requested", icon: "alert-triangle" as const, color: "#e06030", route: "/(admin)/businesses" as const },
+  { type: "payout", label: "Investor Payout Batch #14", sub: "₦12.4M scheduled for escrow release — approve now", icon: "dollar-sign" as const, color: "#2db56e", route: "/(admin)/reports" as const },
+  { type: "dispute", label: "Dispute: INV-0042", sub: "Investor raised concern on Lagos Pharma milestone 3", icon: "alert-circle" as const, color: "#e03e3e", route: "/(admin)/disputes" as const },
 ];
 
 export default function AdminDashboard() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const { user, logout } = useAuth();
+  const { businesses, disputes } = useSystemData();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 
-  const totalFunded    = BUSINESSES.reduce((s, b) => s + b.amountRaised, 0);
-  const verifiedCount  = BUSINESSES.filter((b) => b.verificationStatus === "verified").length;
-  const greenCount     = BUSINESSES.filter((b) => b.brfrStatus === "green").length;
-  const yellowCount    = BUSINESSES.filter((b) => b.brfrStatus === "yellow").length;
-  const orangeCount    = BUSINESSES.filter((b) => b.brfrStatus === "orange").length;
-  const redCount       = BUSINESSES.filter((b) => b.brfrStatus === "red").length;
-  const pendingKybCount = BUSINESSES.filter((b) => b.verificationStatus !== "verified").length;
+  const totalFunded = businesses.reduce((s, b) => s + b.amountRaised, 0);
+  const verifiedCount = businesses.filter((b) => b.verificationStatus === "verified").length;
+  const greenCount = businesses.filter((b) => b.brfrStatus === "green").length;
+  const yellowCount = businesses.filter((b) => b.brfrStatus === "yellow").length;
+  const orangeCount = businesses.filter((b) => b.brfrStatus === "orange").length;
+  const redCount = businesses.filter((b) => b.brfrStatus === "red").length;
+  const pendingKybCount = businesses.filter((b) => b.verificationStatus !== "verified").length;
+  const openDisputes = disputes.filter((d) => d.status === "open" || d.status === "escalated").length;
 
   const handleLogout = () => {
     Alert.alert("Sign Out", "Sign out of admin panel?", [
@@ -47,6 +51,14 @@ export default function AdminDashboard() {
       { text: "Sign Out", style: "destructive", onPress: async () => { await logout(); router.replace("/onboarding"); } },
     ]);
   };
+
+  const quickCardWidth = Math.floor((width - 40 - 12) / 2);
+
+  const pendingActions = PENDING_ACTIONS.map((action) =>
+    action.type === "dispute"
+      ? { ...action, sub: `${openDisputes} active concern${openDisputes === 1 ? "" : "s"} currently waiting on review.` }
+      : action
+  );
 
   return (
     <ScrollView
@@ -132,10 +144,10 @@ export default function AdminDashboard() {
           </Text>
           <View style={styles.brfrRow}>
             {[
-              { label: "Healthy",  count: greenCount,  dot: "#2db56e", bg: "#d6f5e7", text: "#1a7a4a" },
-              { label: "Watch",    count: yellowCount, dot: "#e08c1a", bg: "#fef3dc", text: "#9a5800" },
-              { label: "At Risk",  count: orangeCount, dot: "#e06030", bg: "#fde8d0", text: "#a63400" },
-              { label: "Critical", count: redCount,    dot: "#e03e3e", bg: "#fde8e8", text: "#a30000" },
+              { label: "Healthy", count: greenCount, dot: "#2db56e", bg: "#d6f5e7", text: "#1a7a4a" },
+              { label: "Watch", count: yellowCount, dot: "#e08c1a", bg: "#fef3dc", text: "#9a5800" },
+              { label: "At Risk", count: orangeCount, dot: "#e06030", bg: "#fde8d0", text: "#a63400" },
+              { label: "Critical", count: redCount, dot: "#e03e3e", bg: "#fde8e8", text: "#a30000" },
             ].map((item) => (
               <View key={item.label} style={[styles.brfrItem, { backgroundColor: item.bg }]}>
                 <View style={[styles.brfrDot, { backgroundColor: item.dot }]} />
@@ -166,12 +178,15 @@ export default function AdminDashboard() {
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Pending Actions</Text>
           <View style={[styles.countBadge, { backgroundColor: "#fde8e8" }]}>
-            <Text style={[styles.countText, { color: "#e03e3e" }]}>{PENDING_ACTIONS.length}</Text>
+            <Text style={[styles.countText, { color: "#e03e3e" }]}>{pendingActions.length}</Text>
           </View>
         </View>
-        {PENDING_ACTIONS.map((a, i) => (
+        {pendingActions.map((a, i) => (
           <FadeSlideIn key={i} delay={520 + i * 60}>
-            <PressableScale style={[styles.actionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <PressableScale
+              style={[styles.actionCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+              onPress={() => router.push(a.route)}
+            >
               <View style={[styles.actionIcon, { backgroundColor: a.color + "18" }]}>
                 <Feather name={a.icon} size={16} color={a.color} />
               </View>
@@ -191,24 +206,47 @@ export default function AdminDashboard() {
         </View>
         <View style={styles.quickGrid}>
           {[
-            { icon: "shield" as const,      label: "KYB Reviews",      color: "#2db56e", onPress: () => router.push("/(admin)/businesses") },
-            { icon: "users" as const,        label: "Manage Users",     color: "#1a5e9a", onPress: () => router.push("/(admin)/investors") },
-            { icon: "bar-chart-2" as const,  label: "View Reports",     color: "#c9860d", onPress: () => router.push("/(admin)/reports") },
-            { icon: "settings" as const,     label: "Platform Settings",color: "#7c3aed", onPress: () => router.push("/(admin)/settings") },
+            { icon: "shield" as const, label: "KYB Review", sub: "Business approvals", color: "#2db56e", onPress: () => router.push("/(admin)/businesses") },
+            { icon: "users" as const, label: "Users", sub: "Investor management", color: "#1a5e9a", onPress: () => router.push("/(admin)/investors") },
+            { icon: "plus-circle" as const, label: "Create Business", sub: "New listing intake", color: "#c9860d", onPress: () => router.push("/(admin)/create-business") },
+            { icon: "settings" as const, label: "Platform", sub: "Settings & rules", color: "#7c3aed", onPress: () => router.push("/(admin)/settings") },
           ].map((q) => (
             <PressableScale
               key={q.label}
-              style={[styles.quickCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+              style={[
+                styles.quickCard,
+                {
+                  width: quickCardWidth,
+                  height: 166,
+                  backgroundColor: colors.card,
+                  borderColor: colors.border,
+                },
+              ]}
               onPress={q.onPress}
             >
               <View style={[styles.quickIcon, { backgroundColor: q.color + "18" }]}>
                 <Feather name={q.icon} size={20} color={q.color} />
               </View>
-              <Text style={[styles.quickLabel, { color: colors.foreground }]} numberOfLines={2}>
-                {q.label}
-              </Text>
+              <View style={styles.quickCopy}>
+                <Text style={[styles.quickLabel, { color: colors.foreground }]} numberOfLines={1}>
+                  {q.label}
+                </Text>
+                <Text style={[styles.quickSub, { color: colors.mutedForeground }]} numberOfLines={2}>
+                  {q.sub}
+                </Text>
+              </View>
             </PressableScale>
           ))}
+        </View>
+        <View style={[styles.disputeSummary, { backgroundColor: "#fff7f7", borderColor: "#fca5a5" }]}>
+          <View style={[styles.disputeDot, { backgroundColor: "#e03e3e" }]} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.disputeSummaryTitle}>{openDisputes} active dispute{openDisputes === 1 ? "" : "s"}</Text>
+            <Text style={styles.disputeSummaryText}>Need review from admin and business owners.</Text>
+          </View>
+          <PressableScale style={styles.disputeAction} onPress={() => router.push("/(admin)/disputes")}>
+            <Feather name="arrow-right" size={13} color="#e03e3e" />
+          </PressableScale>
         </View>
       </FadeSlideIn>
     </ScrollView>
@@ -263,8 +301,15 @@ const styles = StyleSheet.create({
   actionIcon: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   actionLabel: { fontSize: 14, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   actionSub: { fontSize: 12, marginTop: 2, fontFamily: "Inter_400Regular" },
-  quickGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 10, marginBottom: 20 },
-  quickCard: { width: "48%", minHeight: 132, borderRadius: 12, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 16, alignItems: "center", justifyContent: "center", gap: 10 },
+  quickGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", marginBottom: 14 },
+  quickCard: { borderRadius: 16, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 16, alignItems: "flex-start", justifyContent: "flex-start", gap: 12, marginBottom: 12 },
   quickIcon: { width: 44, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  quickLabel: { fontSize: 15, lineHeight: 20, fontWeight: "600", textAlign: "center", fontFamily: "Inter_600SemiBold" },
+  quickCopy: { width: "100%", gap: 2, alignItems: "flex-start" },
+  quickLabel: { fontSize: 14, lineHeight: 18, fontWeight: "700", textAlign: "left", fontFamily: "Inter_700Bold" },
+  quickSub: { fontSize: 11, lineHeight: 15, textAlign: "left", fontFamily: "Inter_400Regular" },
+  disputeSummary: { flexDirection: "row", alignItems: "center", gap: 10, borderRadius: 14, borderWidth: 1, padding: 12 },
+  disputeDot: { width: 10, height: 10, borderRadius: 5 },
+  disputeSummaryTitle: { fontSize: 13, fontWeight: "700", fontFamily: "Inter_700Bold", color: "#991b1b" },
+  disputeSummaryText: { fontSize: 11, lineHeight: 15, fontFamily: "Inter_400Regular", color: "#7f1d1d" },
+  disputeAction: { width: 30, height: 30, borderRadius: 15, backgroundColor: "#ffe4e6", alignItems: "center", justifyContent: "center" },
 });

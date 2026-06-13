@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
 import { useAuth } from "@/context/AuthContext";
 import { BUSINESSES, BrfrStatus, KYB_STAGES, formatCurrency } from "@/constants/mockData";
+import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
 
 const BRFR_CONFIG: Record<BrfrStatus, { label: string; color: string; bg: string; dot: string; note: string }> = {
@@ -22,15 +23,17 @@ export default function BusinessDashboard() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { currentBusiness, disputes } = useSystemData();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 
-  const business = BUSINESSES[0];
+  const business = currentBusiness ?? BUSINESSES[0];
   const progress  = business.amountRaised / business.fundingGoal;
   const remaining = business.fundingGoal - business.amountRaised;
   const initials  = (user?.name ?? "B").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
   const brfr      = BRFR_CONFIG[business.brfrStatus];
   const kybStageLabel = KYB_STAGES[business.kybStage - 1];
+  const openDisputes = disputes.filter((dispute) => dispute.businessId === business.id && (dispute.status === "open" || dispute.status === "escalated")).length;
 
   return (
     <ScrollView
@@ -136,6 +139,10 @@ export default function BusinessDashboard() {
           <View style={styles.brfrTop}>
             <View style={[styles.brfrDot, { backgroundColor: brfr.dot }]} />
             <Text style={[styles.brfrStatus, { color: brfr.color }]}>BRRF Status: {brfr.label}</Text>
+            <PressableScale style={[styles.brfrLink, { backgroundColor: "rgba(255,255,255,0.45)" }]} onPress={() => router.push("/(business)/disputes")}>
+              <Feather name="alert-circle" size={12} color={brfr.color} />
+              <Text style={[styles.brfrLinkText, { color: brfr.color }]}>{openDisputes} dispute{openDisputes === 1 ? "" : "s"}</Text>
+            </PressableScale>
           </View>
           <Text style={[styles.brfrNote, { color: brfr.color }]}>{brfr.note}</Text>
         </View>
@@ -281,9 +288,11 @@ const styles = StyleSheet.create({
   kybStageNames: { flexDirection: "row", gap: 6 },
   kybStageName: { flex: 1, fontSize: 9, fontFamily: "Inter_400Regular", textAlign: "center", lineHeight: 13 },
   brfrCard: { borderRadius: 12, borderWidth: 1, padding: 12, marginBottom: 14, gap: 6 },
-  brfrTop: { flexDirection: "row", alignItems: "center", gap: 8 },
+  brfrTop: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" },
   brfrDot: { width: 8, height: 8, borderRadius: 4 },
   brfrStatus: { fontSize: 13, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  brfrLink: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 8, paddingVertical: 5, borderRadius: 100 },
+  brfrLinkText: { fontSize: 11, fontWeight: "700", fontFamily: "Inter_700Bold" },
   brfrNote: { fontSize: 12, fontFamily: "Inter_400Regular", lineHeight: 17 },
   statsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 16 },
   statCard: { borderRadius: 12, borderWidth: 1, padding: 12, gap: 4 },

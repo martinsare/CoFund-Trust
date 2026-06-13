@@ -16,17 +16,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PressableScale } from "@/components/AnimatedPrimitives";
 import { useAuth } from "@/context/AuthContext";
 import { BUSINESSES } from "@/constants/mockData";
+import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
 
 export default function BusinessProfile() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { user, logout } = useAuth();
+  const { currentBusiness, disputes } = useSystemData();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 
-  const business = BUSINESSES[0];
+  const business = currentBusiness ?? BUSINESSES[0];
   const initials = (user?.name ?? "B").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const openDisputes = disputes.filter((dispute) => dispute.businessId === business.id && (dispute.status === "open" || dispute.status === "escalated")).length;
 
   const handleLogout = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
@@ -97,6 +100,7 @@ export default function BusinessProfile() {
         {[
           { icon: "settings" as const, label: "Business Settings", sub: "Update business info", onPress: () => router.push("/(business)/edit-profile" as any) },
           { icon: "bell" as const, label: "Notifications", sub: "Investor alerts", onPress: () => router.push("/notifications") },
+          { icon: "alert-circle" as const, label: "Disputes & Concerns", sub: openDisputes ? `${openDisputes} active concern${openDisputes === 1 ? "" : "s"}` : "No open disputes", onPress: () => router.push("/(business)/disputes") },
           { icon: "lock" as const, label: "Security", sub: "Password & 2FA", onPress: () => Alert.alert("Security", "This needs your auth policy and 2FA provider details before it can be built.") },
           { icon: "help-circle" as const, label: "Help & Support", sub: "Contact CoFund team", onPress: () => Alert.alert("Support", "This needs your support email, phone, or helpdesk setup.") },
         ].map((item, idx, arr) => (

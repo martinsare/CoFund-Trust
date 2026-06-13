@@ -36,13 +36,22 @@ export default function Portfolio() {
       <View style={[styles.header, { paddingTop: topPad + 8 }]}>
         <Animated.View entering={FadeInDown.delay(0).duration(500)} style={styles.titleRow}>
           <Text style={[styles.title, { color: colors.foreground }]}>Portfolio</Text>
-          <PressableScale
-            style={[styles.analyticsBtn, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}
-            onPress={() => router.push("/investor/analytics")}
-          >
-            <Feather name="bar-chart-2" size={14} color={colors.primary} />
-            <Text style={[styles.analyticsBtnText, { color: colors.primary }]}>Analytics</Text>
-          </PressableScale>
+          <View style={styles.titleActions}>
+            <PressableScale
+              style={[styles.concernBtn, { backgroundColor: colors.destructiveLight, borderColor: "#fca5a5" }]}
+              onPress={() => router.push("/(investor)/dispute")}
+            >
+              <Feather name="alert-circle" size={14} color={colors.destructive} />
+              <Text style={[styles.concernBtnText, { color: colors.destructive }]}>Raise Concern</Text>
+            </PressableScale>
+            <PressableScale
+              style={[styles.analyticsBtn, { backgroundColor: colors.primaryLight, borderColor: colors.primaryLight }]}
+              onPress={() => router.push("/investor/analytics")}
+            >
+              <Feather name="bar-chart-2" size={14} color={colors.primary} />
+              <Text style={[styles.analyticsBtnText, { color: colors.primary }]}>Analytics</Text>
+            </PressableScale>
+          </View>
         </Animated.View>
 
         <Animated.View entering={FadeInUp.delay(100).duration(500)} style={[styles.summaryCard, { backgroundColor: colors.primary }]}>
@@ -112,7 +121,12 @@ export default function Portfolio() {
         keyExtractor={(i) => i.id}
         renderItem={({ item, index }) => (
           <Animated.View entering={FadeInDown.delay(index * 100).duration(400)}>
-            <InvestmentCard inv={item} colors={colors} onPress={() => router.push(`/business/${item.businessId}`)} />
+            <InvestmentCard
+              inv={item}
+              colors={colors}
+              onPress={() => router.push(`/business/${item.businessId}`)}
+              onDispute={() => router.push({ pathname: "/(investor)/dispute", params: { businessId: item.businessId, investmentId: item.id } } as any)}
+            />
           </Animated.View>
         )}
         contentContainerStyle={[styles.list, { paddingBottom: bottomPad + 100 }]}
@@ -135,7 +149,17 @@ export default function Portfolio() {
   );
 }
 
-function InvestmentCard({ inv, colors, onPress }: { inv: Investment; colors: ReturnType<typeof import("@/hooks/useColors").useColors>; onPress: () => void }) {
+function InvestmentCard({
+  inv,
+  colors,
+  onPress,
+  onDispute,
+}: {
+  inv: Investment;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+  onPress: () => void;
+  onDispute: () => void;
+}) {
   const sc = {
     active: { bg: colors.accentLight, text: colors.accentDark },
     pending: { bg: colors.amberLight, text: colors.amber },
@@ -168,6 +192,13 @@ function InvestmentCard({ inv, colors, onPress }: { inv: Investment; colors: Ret
         <Text style={[styles.invDate, { color: colors.mutedForeground }]}>Invested {inv.investmentDate}</Text>
         <Text style={[styles.invDate, { color: colors.mutedForeground }]}>Matures {inv.maturityDate}</Text>
       </View>
+      <PressableScale
+        style={[styles.disputeBtn, { backgroundColor: colors.destructiveLight, borderColor: "#fca5a5" }]}
+        onPress={onDispute}
+      >
+        <Feather name="alert-circle" size={13} color={colors.destructive} />
+        <Text style={[styles.disputeBtnText, { color: colors.destructive }]}>Raise Concern</Text>
+      </PressableScale>
     </PressableScale>
   );
 }
@@ -186,6 +217,9 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: 20, paddingBottom: 4 },
   titleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 },
   title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold" },
+  titleActions: { flexDirection: "row", alignItems: "center", gap: 8 },
+  concernBtn: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 9, borderWidth: 1 },
+  concernBtnText: { fontSize: 13, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   analyticsBtn: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 9, borderWidth: 1 },
   analyticsBtnText: { fontSize: 13, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   summaryCard: { borderRadius: 16, padding: 20, marginBottom: 12, gap: 14 },
@@ -223,6 +257,8 @@ const styles = StyleSheet.create({
   metricValue: { fontSize: 14, fontWeight: "700", marginTop: 2, fontFamily: "Inter_700Bold" },
   invFooter: { flexDirection: "row", justifyContent: "space-between", borderTopWidth: 1, paddingTop: 8 },
   invDate: { fontSize: 11, fontFamily: "Inter_400Regular" },
+  disputeBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5, borderRadius: 9, borderWidth: 1, paddingVertical: 8, marginTop: 2 },
+  disputeBtnText: { fontSize: 12, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   empty: { alignItems: "center", paddingTop: 60, gap: 8, paddingHorizontal: 40 },
   emptyTitle: { fontSize: 17, fontWeight: "700", fontFamily: "Inter_700Bold", marginTop: 8 },
   emptySub: { fontSize: 14, textAlign: "center", fontFamily: "Inter_400Regular" },

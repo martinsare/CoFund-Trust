@@ -6,6 +6,8 @@ export type UpdateType = "milestone" | "report" | "update";
 export type NotificationType = "opportunity" | "investment" | "update" | "return";
 export type BrfrStatus = "green" | "yellow" | "orange" | "red";
 export type MilestoneStatus = "completed" | "active" | "pending";
+export type DisputeStatus = "open" | "under_review" | "resolved" | "escalated";
+export type DisputePriority = "low" | "medium" | "high" | "critical";
 
 export const KYB_STAGES = [
   "Basic Eligibility",
@@ -81,6 +83,26 @@ export interface Notification {
   time: string;
   read: boolean;
   type: NotificationType;
+}
+
+export interface DisputeRecord {
+  id: string;
+  reference: string;
+  businessId: string;
+  businessName: string;
+  investorId: string;
+  investorName: string;
+  investmentId?: string;
+  category: string;
+  subject: string;
+  details: string;
+  status: DisputeStatus;
+  priority: DisputePriority;
+  createdAt: string;
+  updatedAt: string;
+  evidenceCount: number;
+  response?: string;
+  assignedTo?: string;
 }
 
 export interface MarketListing {
@@ -487,6 +509,47 @@ export const INVESTMENTS: Investment[] = [
     maturityDate: "2026-06-01",
     roi: "32%",
     progress: 1,
+  },
+];
+
+export const DISPUTES: DisputeRecord[] = [
+  {
+    id: "disp-1",
+    reference: "INV-0042",
+    businessId: "1",
+    businessName: "Lagos Pharma Distributors",
+    investorId: "inv1",
+    investorName: "Tosin Adebayo",
+    investmentId: "inv1",
+    category: "Milestone Delay",
+    subject: "Milestone 3 delivery moved without notice",
+    details:
+      "The investor reports that the fleet expansion milestone was shifted after the expected release window and wants an updated recovery timeline.",
+    status: "open",
+    priority: "high",
+    createdAt: "2026-06-12",
+    updatedAt: "2026-06-12",
+    evidenceCount: 2,
+  },
+  {
+    id: "disp-2",
+    reference: "INV-0043",
+    businessId: "5",
+    businessName: "Lekki Suites Hotel",
+    investorId: "inv3",
+    investorName: "Sola Martins",
+    investmentId: "inv3",
+    category: "Payout Review",
+    subject: "Return timing clarification",
+    details:
+      "The investor asked for a confirmation on the next revenue-share date after the renovation update was published.",
+    status: "under_review",
+    priority: "medium",
+    createdAt: "2026-06-09",
+    updatedAt: "2026-06-11",
+    evidenceCount: 1,
+    assignedTo: "Operations Desk",
+    response: "Investor was informed of the updated payout schedule and the next milestone release window.",
   },
 ];
 

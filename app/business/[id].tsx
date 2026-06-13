@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/AuthContext";
 import { BUSINESSES, BrfrStatus, KYB_STAGES, formatCurrency } from "@/constants/mockData";
+import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
 
 const BRFR_CONFIG: Record<BrfrStatus, { label: string; color: string; bg: string; dot: string }> = {
@@ -34,13 +35,14 @@ export default function BusinessDetail() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { user, updateWallet } = useAuth();
+  const { businesses } = useSystemData();
   const [investModal, setInvestModal] = useState(false);
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 
-  const business = BUSINESSES.find((b) => b.id === id) ?? BUSINESSES[0];
+  const business = businesses.find((b) => b.id === id) ?? businesses[0] ?? BUSINESSES[0];
   const progress = business.amountRaised / business.fundingGoal;
   const brfr = BRFR_CONFIG[business.brfrStatus];
 

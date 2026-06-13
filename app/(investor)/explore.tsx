@@ -7,7 +7,8 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { OpportunityCard } from "@/components/OpportunityCard";
-import { BUSINESSES, Business } from "@/constants/mockData";
+import { Business } from "@/constants/mockData";
+import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
 
 type Filter = "all" | "low" | "closing" | "high_roi" | "new";
@@ -23,13 +24,14 @@ const FILTERS: { id: Filter; label: string }[] = [
 export default function Explore() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { businesses } = useSystemData();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 
   const filtered = useMemo(() => {
-    let list: Business[] = BUSINESSES;
+    let list: Business[] = businesses;
     if (query.trim()) {
       const q = query.toLowerCase();
       list = list.filter(
@@ -44,7 +46,7 @@ export default function Explore() {
     if (filter === "high_roi") list = list.filter((b) => parseInt(b.expectedRoi) >= 25);
     if (filter === "new") list = list.filter((b) => b.investorCount < 20);
     return list;
-  }, [query, filter]);
+  }, [businesses, query, filter]);
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -54,7 +56,7 @@ export default function Explore() {
       >
         <Text style={[styles.title, { color: colors.foreground }]}>Explore</Text>
         <Text style={[styles.sub, { color: colors.mutedForeground }]}>
-          {BUSINESSES.length} verified opportunities
+          {businesses.length} verified opportunities
         </Text>
 
         <View style={[styles.searchWrap, { backgroundColor: colors.card, borderColor: colors.border }]}>

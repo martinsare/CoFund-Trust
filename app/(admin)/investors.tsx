@@ -8,8 +8,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
 import { formatCurrency } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
+import { router } from "expo-router";
 
-const MOCK_INVESTORS = [
+export const MOCK_INVESTORS = [
   { id: "1", name: "Adebayo Okafor", email: "investor@cofund.africa", country: "Nigeria", kyc: "Tier 2", invested: 2500000, investments: 4, joined: "Jan 2025", status: "active" },
   { id: "2", name: "Chioma Eze", email: "chioma.eze@gmail.com", country: "Nigeria", kyc: "Tier 1", invested: 850000, investments: 2, joined: "Feb 2025", status: "active" },
   { id: "3", name: "Kwame Mensah", email: "kwame.m@outlook.com", country: "Ghana", kyc: "None", invested: 0, investments: 0, joined: "Mar 2025", status: "pending_kyc" },
@@ -111,11 +112,14 @@ export default function AdminInvestors() {
 
       {filtered.map((inv, i) => (
         <FadeSlideIn key={inv.id} delay={240 + i * 50}>
-          <PressableScale style={[styles.investorCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <PressableScale
+            style={[styles.investorCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+            onPress={() => router.push({ pathname: "/(admin)/investor-detail/[id]", params: { id: inv.id } } as any)}
+          >
             <View style={styles.invTop}>
-            <View style={[styles.invAvatar, { backgroundColor: inv.status === "active" ? "#1a5e9a" : inv.status === "suspended" ? "#e03e3e" : "#e08c1a" }]}>
-              <Text style={styles.invAvatarText}>{inv.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</Text>
-            </View>
+              <View style={[styles.invAvatar, { backgroundColor: inv.status === "active" ? "#1a5e9a" : inv.status === "suspended" ? "#e03e3e" : "#e08c1a" }]}>
+                <Text style={styles.invAvatarText}>{inv.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</Text>
+              </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.invName, { color: colors.foreground }]}>{inv.name}</Text>
                 <Text style={[styles.invEmail, { color: colors.mutedForeground }]}>{inv.email}</Text>
@@ -127,6 +131,10 @@ export default function AdminInvestors() {
               <MetaItem icon="shield" label={`KYC ${inv.kyc}`} colors={colors} />
               <MetaItem icon="trending-up" label={formatCurrency(inv.invested)} colors={colors} />
               <MetaItem icon="calendar" label={`Joined ${inv.joined}`} colors={colors} />
+            </View>
+            <View style={styles.invFooter}>
+              <Text style={[styles.invFooterText, { color: colors.mutedForeground }]}>Tap to open full profile</Text>
+              <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
             </View>
             {inv.status === "pending_kyc" && (
               <PressableScale
@@ -201,6 +209,8 @@ const styles = StyleSheet.create({
   invMeta: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   metaItem: { flexDirection: "row", alignItems: "center", gap: 4 },
   metaText: { fontSize: 11, fontFamily: "Inter_400Regular" },
+  invFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  invFooterText: { fontSize: 12, fontFamily: "Inter_500Medium" },
   kycBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 9, borderRadius: 9, borderWidth: 1 },
   kycBtnText: { fontSize: 13, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   empty: { alignItems: "center", gap: 12, paddingVertical: 60 },
