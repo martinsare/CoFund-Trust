@@ -2,7 +2,7 @@ kind = "mobile"
 previewPath = "/"
 title = "CoFund"
 version = "1.0.0"
-id = "artifacts/cofund"
+id = "cofund"
 router = "expo-domain"
 
 [[integratedSkills]]
