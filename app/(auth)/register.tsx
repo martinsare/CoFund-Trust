@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -99,6 +100,11 @@ export default function Register() {
         </Pressable>
 
         <View style={styles.header}>
+          <Image
+            source={require("../../assets/images/cofund-logo-transparent.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
           <Text style={[styles.title, { color: colors.foreground }]}>Create Account</Text>
           <Text style={[styles.sub, { color: colors.mutedForeground }]}>Join CoFund — Africa's trust-first investment platform</Text>
         </View>
@@ -222,7 +228,8 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   scroll: { paddingHorizontal: 24, flexGrow: 1 },
   back: { marginBottom: 24, alignSelf: "flex-start", padding: 4 },
-  header: { marginBottom: 24 },
+  header: { marginBottom: 24, alignItems: "center" },
+  logoImage: { width: 130, height: 100, marginBottom: 12 },
   title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold" },
   sub: { fontSize: 14, marginTop: 6, lineHeight: 20, fontFamily: "Inter_400Regular" },
   sectionLabel: { fontSize: 11, fontWeight: "600", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 10, fontFamily: "Inter_600SemiBold" },

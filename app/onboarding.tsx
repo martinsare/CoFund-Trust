@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Image, Platform, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -39,19 +39,16 @@ export default function Onboarding() {
         colors={["#0e3d6e", "#1a5e9a", "#1a7a4a"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[styles.gradient, { paddingTop: topPad + 48, paddingBottom: bottomPad + 24 }]}
+        style={[styles.gradient, { paddingTop: topPad + 32, paddingBottom: bottomPad + 24 }]}
       >
-        <Animated.View entering={FadeInDown.delay(0).duration(600)} style={styles.logoBlock}>
-          <Animated.View
-            entering={FadeInDown.delay(80).duration(600).springify()}
-            style={[styles.logoIcon, { backgroundColor: "rgba(255,255,255,0.15)" }]}
-          >
-            <Feather name="layers" size={32} color="#fff" />
-          </Animated.View>
-          <Text style={styles.logoText}>CoFund</Text>
-          <Text style={styles.tagline}>Together, We Grow</Text>
+        <Animated.View entering={FadeInDown.delay(0).duration(700)} style={styles.logoBlock}>
+          <Image
+            source={require("../assets/images/cofund-logo-transparent.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
           <Text style={styles.subtitle}>
-            Africa's trust-first investment platform connecting vetted SMEs with investors
+            Africa's trust-first investment platform{"\n"}connecting vetted SMEs with investors
           </Text>
         </Animated.View>
 
@@ -91,20 +88,13 @@ export default function Onboarding() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   gradient: { flex: 1, paddingHorizontal: 28 },
-  logoBlock: { alignItems: "center", marginBottom: 40 },
-  logoIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+  logoBlock: { alignItems: "center", marginBottom: 36 },
+  logoImage: {
+    width: 220,
+    height: 180,
+    marginBottom: 12,
   },
-  logoText: { fontSize: 42, fontWeight: "800", color: "#fff", letterSpacing: -1.5, fontFamily: "Inter_700Bold" },
-  tagline: { fontSize: 13, color: "rgba(255,255,255,0.75)", letterSpacing: 0.5, marginTop: 4, fontFamily: "Inter_500Medium" },
-  subtitle: { fontSize: 15, color: "rgba(255,255,255,0.65)", textAlign: "center", lineHeight: 22, marginTop: 12, maxWidth: 300, fontFamily: "Inter_400Regular" },
+  subtitle: { fontSize: 14, color: "rgba(255,255,255,0.70)", textAlign: "center", lineHeight: 21, maxWidth: 300, fontFamily: "Inter_400Regular" },
   features: { gap: 14, marginBottom: 40 },
   featureRow: {
     flexDirection: "row", alignItems: "flex-start", gap: 14,

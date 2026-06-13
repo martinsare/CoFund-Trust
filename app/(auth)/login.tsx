@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -68,6 +69,11 @@ export default function Login() {
         </Pressable>
 
         <View style={styles.header}>
+          <Image
+            source={require("../../assets/images/cofund-logo-transparent.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
           <Text style={[styles.title, { color: colors.foreground }]}>Welcome back</Text>
           <Text style={[styles.sub, { color: colors.mutedForeground }]}>
             Sign in to your CoFund account
@@ -155,7 +161,8 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   scroll: { paddingHorizontal: 24, flexGrow: 1 },
   back: { marginBottom: 24, alignSelf: "flex-start", padding: 4 },
-  header: { marginBottom: 28 },
+  header: { marginBottom: 28, alignItems: "center" },
+  logoImage: { width: 140, height: 110, marginBottom: 16 },
   title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold" },
   sub: { fontSize: 15, marginTop: 6, fontFamily: "Inter_400Regular" },
   card: {
