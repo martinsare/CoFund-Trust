@@ -1,13 +1,24 @@
 import { Feather } from "@expo/vector-icons";
+import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Platform, Pressable, StyleSheet, Text, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
 import { NOTIFICATIONS, Notification, NotificationType } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 type NFilter = "all" | NotificationType;
 
@@ -31,8 +42,69 @@ export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
   const [activeFilter, setActiveFilter] = useState<NFilter>("all");
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
+  const [permissionStatus, setPermissionStatus] = useState<"granted" | "denied" | "undetermined" | null>(null);
+  const [pushToken, setPushToken] = useState<string | null>(null);
+  const notifListener = useRef<Notifications.EventSubscription | null>(null);
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
+
+  useEffect(() => {
+    setupPushNotifications();
+    notifListener.current = Notifications.addNotificationReceivedListener((notif) => {
+      const title = notif.request.content.title ?? "Notification";
+      const body = notif.request.content.body ?? "";
+      const type = (notif.request.content.data?.type as NotificationType) ?? "update";
+      setNotifications((prev) => [
+        {
+          id: Date.now().toString(),
+          title,
+          body,
+          time: "Just now",
+          read: false,
+          type,
+        },
+        ...prev,
+      ]);
+    });
+    return () => {
+      notifListener.current?.remove();
+    };
+  }, []);
+
+  async function setupPushNotifications() {
+    if (Platform.OS === "web") {
+      setPermissionStatus("denied");
+      return;
+    }
+    const { status: existing } = await Notifications.getPermissionsAsync();
+    let finalStatus = existing;
+    if (existing !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    setPermissionStatus(finalStatus as "granted" | "denied" | "undetermined");
+    if (finalStatus === "granted") {
+      try {
+        const tokenData = await Notifications.getExpoPushTokenAsync();
+        setPushToken(tokenData.data);
+      } catch {
+        // Expo Go on simulator may not return a token
+      }
+    }
+  }
+
+  async function sendTestPush() {
+    if (Platform.OS === "web") return;
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "New Opportunity Available 🚀",
+        body: "Abuja Solar Energy Co. just opened a funding round. 28% projected ROI.",
+        data: { type: "opportunity" },
+        sound: true,
+      },
+      trigger: { seconds: 1, type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL },
+    });
+  }
 
   const filtered = activeFilter === "all" ? notifications : notifications.filter((n) => n.type === activeFilter);
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -65,6 +137,38 @@ export default function NotificationsScreen() {
             <View style={{ width: 80 }} />
           )}
         </View>
+
+        {permissionStatus === "granted" && (
+          <Animated.View entering={FadeInUp.delay(100).duration(400)}>
+            <PressableScale
+              style={[styles.pushBanner, { backgroundColor: colors.primaryXLight, borderColor: colors.primaryLight }]}
+              onPress={sendTestPush}
+            >
+              <View style={[styles.pushIconWrap, { backgroundColor: colors.primary }]}>
+                <Feather name="bell" size={14} color="#fff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.pushBannerTitle, { color: colors.primary }]}>Push notifications on</Text>
+                <Text style={[styles.pushBannerSub, { color: colors.mutedForeground }]}>Tap to send a test notification</Text>
+              </View>
+              <Feather name="send" size={14} color={colors.primary} />
+            </PressableScale>
+          </Animated.View>
+        )}
+
+        {permissionStatus === "denied" && Platform.OS !== "web" && (
+          <Animated.View entering={FadeInUp.delay(100).duration(400)}>
+            <View style={[styles.pushBanner, { backgroundColor: colors.amberLight, borderColor: "#e08c1a30" }]}>
+              <View style={[styles.pushIconWrap, { backgroundColor: colors.amber }]}>
+                <Feather name="bell-off" size={14} color="#fff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.pushBannerTitle, { color: colors.amber }]}>Push notifications off</Text>
+                <Text style={[styles.pushBannerSub, { color: colors.mutedForeground }]}>Enable in Settings to get real-time alerts</Text>
+              </View>
+            </View>
+          </Animated.View>
+        )}
 
         <View style={styles.filters}>
           {FILTERS.map((f) => (
@@ -159,6 +263,10 @@ const styles = StyleSheet.create({
   sub: { fontSize: 12, fontFamily: "Inter_400Regular" },
   markReadBtn: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: 9, borderWidth: 1 },
   markReadText: { fontSize: 12, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
+  pushBanner: { flexDirection: "row", alignItems: "center", gap: 10, padding: 12, borderRadius: 12, borderWidth: 1, marginBottom: 14 },
+  pushIconWrap: { width: 32, height: 32, borderRadius: 9, alignItems: "center", justifyContent: "center" },
+  pushBannerTitle: { fontSize: 13, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  pushBannerSub: { fontSize: 11, fontFamily: "Inter_400Regular", marginTop: 1 },
   filters: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingBottom: 6 },
   filterChip: { paddingHorizontal: 13, paddingVertical: 7, borderRadius: 9, borderWidth: 1.5 },
   filterText: { fontSize: 12, fontWeight: "500", fontFamily: "Inter_500Medium" },

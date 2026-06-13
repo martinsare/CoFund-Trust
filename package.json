@@ -53,6 +53,7 @@
     "zod-validation-error": "^3.4.0"
   },
   "dependencies": {
-    "expo-clipboard": "^8.0.8"
+    "expo-clipboard": "^8.0.8",
+    "expo-notifications": "^56.0.17"
   }
 }

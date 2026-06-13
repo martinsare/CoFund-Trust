@@ -18,9 +18,9 @@ const BENEFITS = [
 ];
 
 const PLANS = [
-  { id: "monthly", label: "Monthly", price: 5000, period: "/month", saving: null },
+  { id: "monthly", label: "Monthly", price: 5000, period: "/month", saving: null, popular: false },
   { id: "quarterly", label: "Quarterly", price: 12000, period: "/3 months", saving: "Save 20%", popular: true },
-  { id: "annual", label: "Annual", price: 40000, period: "/year", saving: "Save 33%" },
+  { id: "annual", label: "Annual", price: 40000, period: "/year", saving: "Save 33%", popular: false },
 ];
 
 export default function CoFundPro() {
@@ -29,6 +29,8 @@ export default function CoFundPro() {
   const [selectedPlan, setSelectedPlan] = useState("quarterly");
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
+
+  const selectedPlanData = PLANS.find((p) => p.id === selectedPlan)!;
 
   return (
     <ScrollView
@@ -88,47 +90,67 @@ export default function CoFundPro() {
       <Animated.View entering={FadeInUp.delay(340).duration(500)}>
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Choose a plan</Text>
         <View style={styles.plans}>
-          {PLANS.map((plan) => {
+          {PLANS.map((plan, index) => {
             const isSelected = selectedPlan === plan.id;
             return (
-              <PressableScale
+              <Animated.View
                 key={plan.id}
-                style={[
-                  styles.planCard,
-                  {
-                    backgroundColor: isSelected ? "#7c3aed" : colors.card,
-                    borderColor: isSelected ? "#7c3aed" : colors.border,
-                    borderWidth: isSelected ? 2 : 1,
-                  },
-                ]}
-                onPress={() => setSelectedPlan(plan.id)}
+                entering={FadeInDown.delay(340 + index * 60).duration(400)}
               >
-                {plan.popular && (
-                  <View style={styles.popularBadge}>
-                    <Text style={styles.popularText}>Most Popular</Text>
+                <PressableScale
+                  style={[
+                    styles.planCard,
+                    {
+                      backgroundColor: isSelected ? "#7c3aed" : colors.card,
+                      borderColor: isSelected ? "#7c3aed" : plan.popular ? "#7c3aed40" : colors.border,
+                      borderWidth: isSelected ? 2 : plan.popular ? 1.5 : 1,
+                    },
+                  ]}
+                  onPress={() => setSelectedPlan(plan.id)}
+                >
+                  <View style={styles.planLeft}>
+                    <View style={styles.planLabelRow}>
+                      <Text style={[styles.planLabel, { color: isSelected ? "rgba(255,255,255,0.85)" : colors.foreground }]}>
+                        {plan.label}
+                      </Text>
+                      {plan.popular && (
+                        <View style={[styles.popularBadge, { backgroundColor: isSelected ? "rgba(255,255,255,0.2)" : "#fbbf2420" }]}>
+                          <Text style={[styles.popularText, { color: isSelected ? "#fff" : "#fbbf24" }]}>Popular</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text style={[styles.planPeriod, { color: isSelected ? "rgba(255,255,255,0.6)" : colors.mutedForeground }]}>
+                      Billed{plan.period}
+                    </Text>
                   </View>
-                )}
-                <Text style={[styles.planLabel, { color: isSelected ? "rgba(255,255,255,0.8)" : colors.mutedForeground }]}>
-                  {plan.label}
-                </Text>
-                <Text style={[styles.planPrice, { color: isSelected ? "#fff" : colors.foreground }]}>
-                  ₦{(plan.price / 1000).toFixed(0)}K
-                </Text>
-                <Text style={[styles.planPeriod, { color: isSelected ? "rgba(255,255,255,0.65)" : colors.mutedForeground }]}>
-                  {plan.period}
-                </Text>
-                {plan.saving && (
-                  <View style={[styles.savingBadge, { backgroundColor: isSelected ? "rgba(255,255,255,0.15)" : colors.accentLight }]}>
-                    <Text style={[styles.savingText, { color: isSelected ? "#fff" : colors.accentDark }]}>{plan.saving}</Text>
+
+                  <View style={styles.planRight}>
+                    {plan.saving && (
+                      <View style={[styles.savingBadge, { backgroundColor: isSelected ? "rgba(255,255,255,0.15)" : colors.accentLight }]}>
+                        <Text style={[styles.savingText, { color: isSelected ? "#fff" : colors.accentDark }]}>{plan.saving}</Text>
+                      </View>
+                    )}
+                    <View style={styles.planPriceRow}>
+                      <Text style={[styles.planCurrency, { color: isSelected ? "rgba(255,255,255,0.75)" : colors.mutedForeground }]}>₦</Text>
+                      <Text style={[styles.planPrice, { color: isSelected ? "#fff" : colors.foreground }]}>
+                        {(plan.price / 1000).toFixed(0)}K
+                      </Text>
+                    </View>
                   </View>
-                )}
-              </PressableScale>
+
+                  {isSelected && (
+                    <View style={styles.checkCircle}>
+                      <Feather name="check" size={12} color="#7c3aed" />
+                    </View>
+                  )}
+                </PressableScale>
+              </Animated.View>
             );
           })}
         </View>
       </Animated.View>
 
-      <Animated.View entering={FadeInUp.delay(460).duration(500)}>
+      <Animated.View entering={FadeInUp.delay(520).duration(500)}>
         <PressableScale style={styles.subscribeBtn}>
           <LinearGradient
             colors={["#7c3aed", "#1a5e9a"]}
@@ -137,11 +159,13 @@ export default function CoFundPro() {
             style={styles.subscribeBtnInner}
           >
             <Feather name="star" size={16} color="#fff" />
-            <Text style={styles.subscribeBtnText}>Subscribe to Pro</Text>
+            <Text style={styles.subscribeBtnText}>
+              Subscribe · ₦{(selectedPlanData.price / 1000).toFixed(0)}K{selectedPlanData.period}
+            </Text>
           </LinearGradient>
         </PressableScale>
         <Text style={[styles.disclaimer, { color: colors.mutedForeground }]}>
-          Cancel anytime. No hidden fees. Secure payment via Paystack.
+          Cancel anytime · No hidden fees · Secure via Paystack
         </Text>
       </Animated.View>
     </ScrollView>
@@ -165,17 +189,30 @@ const styles = StyleSheet.create({
   benefitIcon: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   benefitLabel: { fontSize: 14, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   benefitDesc: { fontSize: 12, marginTop: 1, fontFamily: "Inter_400Regular" },
-  plans: { flexDirection: "row", gap: 10 },
-  planCard: { flex: 1, borderRadius: 14, padding: 14, alignItems: "center", gap: 3, overflow: "hidden" },
-  popularBadge: { backgroundColor: "#fbbf24", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 100, marginBottom: 4 },
-  popularText: { color: "#fff", fontSize: 10, fontWeight: "700", fontFamily: "Inter_700Bold" },
-  planLabel: { fontSize: 12, fontFamily: "Inter_500Medium" },
-  planPrice: { fontSize: 22, fontWeight: "800", fontFamily: "Inter_700Bold" },
-  planPeriod: { fontSize: 11, fontFamily: "Inter_400Regular" },
-  savingBadge: { marginTop: 4, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 100 },
+  plans: { gap: 10 },
+  planCard: {
+    borderRadius: 14,
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+  },
+  planLeft: { flex: 1, gap: 3 },
+  planLabelRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  planLabel: { fontSize: 15, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  planPeriod: { fontSize: 12, fontFamily: "Inter_400Regular" },
+  planRight: { alignItems: "flex-end", gap: 4 },
+  planPriceRow: { flexDirection: "row", alignItems: "flex-end", gap: 1 },
+  planCurrency: { fontSize: 13, fontFamily: "Inter_500Medium", marginBottom: 2 },
+  planPrice: { fontSize: 24, fontWeight: "800", fontFamily: "Inter_700Bold", lineHeight: 28 },
+  popularBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 100 },
+  popularText: { fontSize: 10, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  savingBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 100 },
   savingText: { fontSize: 10, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
+  checkCircle: { width: 20, height: 20, borderRadius: 10, backgroundColor: "#fff", alignItems: "center", justifyContent: "center", marginLeft: 10 },
   subscribeBtn: { borderRadius: 14, overflow: "hidden" },
   subscribeBtnInner: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 16 },
   subscribeBtnText: { color: "#fff", fontSize: 16, fontWeight: "700", fontFamily: "Inter_700Bold" },
-  disclaimer: { textAlign: "center", fontSize: 12, fontFamily: "Inter_400Regular" },
+  disclaimer: { textAlign: "center", fontSize: 12, fontFamily: "Inter_400Regular", marginTop: -8 },
 });
