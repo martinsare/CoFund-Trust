@@ -177,14 +177,14 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteDispute = (id: string) => {
-    setDisputes((prev) => prev.filter((d) => d.id !== id));
+    setDisputes((prev) => prev.map((d) => d.id === id ? { ...d, deleted: 1 as const } : d));
   };
 
   const addAdminTransaction = (tx: Omit<AdminTransaction, "id">) => {
     setAdminTransactions((prev) => [{ ...tx, id: `wt-${Date.now()}` }, ...prev]);
   };
   const deleteAdminTransaction = (id: string) => {
-    setAdminTransactions((prev) => prev.filter((t) => t.id !== id));
+    setAdminTransactions((prev) => prev.map((t) => t.id === id ? { ...t, deleted: 1 as const } : t));
   };
 
   const addAdminListing = (listing: Omit<AdminListing, "id">) => {
@@ -194,7 +194,7 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     setAdminListings((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)));
   };
   const deleteAdminListing = (id: string) => {
-    setAdminListings((prev) => prev.filter((l) => l.id !== id));
+    setAdminListings((prev) => prev.map((l) => l.id === id ? { ...l, deleted: 1 as const } : l));
   };
 
   const addAdminThread = (thread: Omit<AdminThread, "id">) => {
@@ -204,11 +204,15 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     setAdminThreads((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
   };
   const deleteAdminThread = (id: string) => {
-    setAdminThreads((prev) => prev.filter((t) => t.id !== id));
+    setAdminThreads((prev) => prev.map((t) => t.id === id ? { ...t, deleted: 1 as const } : t));
   };
 
   const value: SystemContextType = {
-    businesses, currentBusiness, disputes, adminTransactions, adminListings, adminThreads,
+    businesses, currentBusiness,
+    disputes:           disputes.filter((d) => !d.deleted),
+    adminTransactions:  adminTransactions.filter((t) => !t.deleted),
+    adminListings:      adminListings.filter((l) => !l.deleted),
+    adminThreads:       adminThreads.filter((t) => !t.deleted),
     createBusiness, updateBusiness,
     submitDispute, updateDispute, deleteDispute,
     addAdminTransaction, deleteAdminTransaction,

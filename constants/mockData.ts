@@ -103,6 +103,7 @@ export interface DisputeRecord {
   evidenceCount: number;
   response?: string;
   assignedTo?: string;
+  deleted?: 0 | 1;
 }
 
 export interface MarketListing {
@@ -945,6 +946,7 @@ export interface AdminTransaction {
   description: string;
   date: string;
   status: AdminTxStatus;
+  deleted?: 0 | 1;
 }
 
 export type AdminListingType = "equity" | "debt" | "revenue_share" | "asset_backed";
@@ -961,6 +963,7 @@ export interface AdminListing {
   status: AdminListingStatus;
   listedDate: string;
   expiryDate: string;
+  deleted?: 0 | 1;
 }
 
 export type AdminThreadStatus = "open" | "archived" | "resolved";
@@ -974,6 +977,7 @@ export interface AdminThread {
   status: AdminThreadStatus;
   unreadCount: number;
   category: AdminThreadCategory;
+  deleted?: 0 | 1;
 }
 
 export const INITIAL_ADMIN_TRANSACTIONS: AdminTransaction[] = [

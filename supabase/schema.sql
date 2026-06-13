@@ -340,6 +340,7 @@ create table if not exists public.wallet_transactions (
   amount      numeric(18,2) not null,
   description text not null default '',
   status      text not null check (status in ('completed','pending')) default 'completed',
+  deleted     smallint not null default 0,
   created_at  timestamptz not null default now()
 );
 
@@ -347,7 +348,7 @@ alter table public.wallet_transactions enable row level security;
 
 create policy "Users can read own transactions"
   on public.wallet_transactions for select
-  using (auth.uid() = profile_id);
+  using (auth.uid() = profile_id and deleted = 0);
 
 create policy "Admins can read all transactions"
   on public.wallet_transactions for select
@@ -373,6 +374,7 @@ create table if not exists public.disputes (
   evidence_count int not null default 0,
   response       text,
   assigned_to    text,
+  deleted        smallint not null default 0,
   created_at     timestamptz not null default now(),
   updated_at     timestamptz not null default now()
 );
@@ -380,7 +382,7 @@ create table if not exists public.disputes (
 alter table public.disputes enable row level security;
 
 create policy "Investor can read own disputes"
-  on public.disputes for select using (auth.uid() = investor_id);
+  on public.disputes for select using (auth.uid() = investor_id and deleted = 0);
 
 create policy "Investor can create disputes"
   on public.disputes for insert with check (auth.uid() = investor_id);
@@ -413,13 +415,14 @@ create table if not exists public.market_listings (
   premium_discount numeric(5,2) default 0,
   seller_type      text check (seller_type in ('retail','institutional')) default 'retail',
   status           text not null check (status in ('active','sold','cancelled')) default 'active',
+  deleted          smallint not null default 0,
   created_at       timestamptz not null default now()
 );
 
 alter table public.market_listings enable row level security;
 
 create policy "Anyone can read active listings"
-  on public.market_listings for select using (status = 'active');
+  on public.market_listings for select using (status = 'active' and deleted = 0);
 
 create policy "Sellers can manage own listings"
   on public.market_listings for all using (auth.uid() = seller_id);
@@ -434,6 +437,7 @@ create table if not exists public.message_threads (
   business_id  uuid references public.businesses(id) on delete cascade,
   last_message text,
   unread_count int not null default 0,
+  deleted      smallint not null default 0,
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()
 );
@@ -442,7 +446,7 @@ alter table public.message_threads enable row level security;
 
 create policy "Participants can read own threads"
   on public.message_threads for select
-  using (auth.uid() = investor_id or auth.uid() = business_id);
+  using ((auth.uid() = investor_id or auth.uid() = business_id) and deleted = 0);
 
 create trigger message_threads_updated_at
   before update on public.message_threads
@@ -635,3 +639,46 @@ insert into public.pro_plans (id, label, price_ngn, period, saving) values
   ('quarterly', 'Quarterly', 12000, '/3 months', 'Save 20%'),
   ('annual',    'Annual',    40000, '/year',      'Save 33%')
 on conflict do nothing;
+
+
+-- ============================================================
+-- MIGRATION: Add soft-delete column to existing databases
+-- Run this block ONLY if your database was created before the
+-- deleted column was added to the CREATE TABLE statements above.
+-- Safe to run multiple times (add column if not exists).
+-- ============================================================
+
+alter table public.wallet_transactions
+  add column if not exists deleted smallint not null default 0;
+
+alter table public.disputes
+  add column if not exists deleted smallint not null default 0;
+
+alter table public.market_listings
+  add column if not exists deleted smallint not null default 0;
+
+alter table public.message_threads
+  add column if not exists deleted smallint not null default 0;
+
+-- Update existing SELECT policies to respect the deleted flag.
+-- Drop the old policy first, then recreate with the new condition.
+
+drop policy if exists "Users can read own transactions"  on public.wallet_transactions;
+create policy "Users can read own transactions"
+  on public.wallet_transactions for select
+  using (auth.uid() = profile_id and deleted = 0);
+
+drop policy if exists "Investor can read own disputes"   on public.disputes;
+create policy "Investor can read own disputes"
+  on public.disputes for select
+  using (auth.uid() = investor_id and deleted = 0);
+
+drop policy if exists "Anyone can read active listings"  on public.market_listings;
+create policy "Anyone can read active listings"
+  on public.market_listings for select
+  using (status = 'active' and deleted = 0);
+
+drop policy if exists "Participants can read own threads" on public.message_threads;
+create policy "Participants can read own threads"
+  on public.message_threads for select
+  using ((auth.uid() = investor_id or auth.uid() = business_id) and deleted = 0);
