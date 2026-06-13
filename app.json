@@ -9,6 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
+      "image": "./assets/images/cofund-logo-transparent.png",
+      "resizeMode": "contain",
       "backgroundColor": "#0e3d6e"
     },
     "ios": {

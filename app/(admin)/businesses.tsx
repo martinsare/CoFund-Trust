@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
-import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -24,10 +25,11 @@ export default function AdminBusinesses() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
+  const [businesses, setBusinesses] = useState(BUSINESSES);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("All");
 
-  const filtered = BUSINESSES.filter((b) => {
+  const filtered = businesses.filter((b) => {
     const matchSearch =
       b.name.toLowerCase().includes(search.toLowerCase()) ||
       b.industry.toLowerCase().includes(search.toLowerCase());
@@ -37,10 +39,14 @@ export default function AdminBusinesses() {
     return matchSearch;
   });
 
-  const verifiedCount = BUSINESSES.filter((b) => b.verificationStatus === "verified").length;
-  const pendingCount  = BUSINESSES.filter((b) => b.verificationStatus !== "verified").length;
-  const atRiskCount   = BUSINESSES.filter((b) => b.brfrStatus === "orange" || b.brfrStatus === "red").length;
-  const watchCount    = BUSINESSES.filter((b) => b.brfrStatus === "yellow").length;
+  const verifiedCount = businesses.filter((b) => b.verificationStatus === "verified").length;
+  const pendingCount  = businesses.filter((b) => b.verificationStatus !== "verified").length;
+  const atRiskCount   = businesses.filter((b) => b.brfrStatus === "orange" || b.brfrStatus === "red").length;
+  const watchCount    = businesses.filter((b) => b.brfrStatus === "yellow").length;
+
+  const updateBusiness = (id: string, patch: Partial<(typeof BUSINESSES)[number]>) => {
+    setBusinesses((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)));
+  };
 
   return (
     <ScrollView
@@ -169,15 +175,30 @@ export default function AdminBusinesses() {
 
               {b.verificationStatus !== "verified" && (
                 <View style={styles.actionRow}>
-                  <PressableScale style={[styles.actionBtn, { backgroundColor: "#d6f5e7", borderColor: "#2db56e" }]}>
+                  <PressableScale
+                    style={[styles.actionBtn, { backgroundColor: "#d6f5e7", borderColor: "#2db56e" }]}
+                    onPress={() => {
+                      updateBusiness(b.id, { verificationStatus: "verified", kybStage: 5 });
+                      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                    }}
+                  >
                     <Feather name="check" size={13} color="#2db56e" />
                     <Text style={[styles.actionBtnText, { color: "#2db56e" }]}>Approve</Text>
                   </PressableScale>
-                  <PressableScale style={[styles.actionBtn, { backgroundColor: "#fde8e8", borderColor: "#e03e3e" }]}>
+                  <PressableScale
+                    style={[styles.actionBtn, { backgroundColor: "#fde8e8", borderColor: "#e03e3e" }]}
+                    onPress={() => {
+                      updateBusiness(b.id, { verificationStatus: "partial", kybStage: Math.min(b.kybStage, 3) as 1 | 2 | 3 | 4 | 5 });
+                      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+                    }}
+                  >
                     <Feather name="x" size={13} color="#e03e3e" />
-                    <Text style={[styles.actionBtnText, { color: "#e03e3e" }]}>Reject</Text>
+                    <Text style={[styles.actionBtnText, { color: "#e03e3e" }]}>Send Back</Text>
                   </PressableScale>
-                  <PressableScale style={[styles.actionBtn, { flex: 1, backgroundColor: "#ddeaf8", borderColor: "#1a5e9a" }]}>
+                  <PressableScale
+                    style={[styles.actionBtn, { flex: 1, backgroundColor: "#ddeaf8", borderColor: "#1a5e9a" }]}
+                    onPress={() => Alert.alert("Review Documents", `${b.name} still needs a full document review flow. For now, the business has been moved to the review queue.`)}
+                  >
                     <Feather name="file-text" size={13} color="#1a5e9a" />
                     <Text style={[styles.actionBtnText, { color: "#1a5e9a" }]}>Review Docs</Text>
                   </PressableScale>

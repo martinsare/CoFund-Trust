@@ -21,7 +21,7 @@ function NativeTabLayout() {
         <Label>Analytics</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="create">
-        <Icon sf={{ default: "doc.badge.plus", selected: "doc.badge.plus.fill" }} />
+        <Icon sf={{ default: "doc.badge.plus", selected: "doc.badge.plus" }} />
         <Label>Request</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="updates">

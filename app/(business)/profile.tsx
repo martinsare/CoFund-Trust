@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { PressableScale } from "@/components/AnimatedPrimitives";
 import { useAuth } from "@/context/AuthContext";
 import { BUSINESSES } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
@@ -40,7 +41,16 @@ export default function BusinessProfile() {
       contentContainerStyle={[styles.content, { paddingTop: topPad + 8, paddingBottom: bottomPad + 100 }]}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={[styles.title, { color: colors.foreground }]}>Profile</Text>
+      <View style={styles.titleRow}>
+        <Text style={[styles.title, { color: colors.foreground }]}>Profile</Text>
+        <PressableScale
+          style={[styles.editBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+          onPress={() => router.push("/(business)/edit-profile" as any)}
+        >
+          <Feather name="edit-2" size={14} color={colors.foreground} />
+          <Text style={[styles.editBtnText, { color: colors.foreground }]}>Edit</Text>
+        </PressableScale>
+      </View>
 
       <LinearGradient
         colors={["#1a7a4a", "#2db56e"]}
@@ -85,12 +95,12 @@ export default function BusinessProfile() {
 
       <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
         {[
-          { icon: "settings" as const, label: "Business Settings", sub: "Update business info" },
-          { icon: "bell" as const, label: "Notifications", sub: "Investor alerts" },
-          { icon: "lock" as const, label: "Security", sub: "Password & 2FA" },
-          { icon: "help-circle" as const, label: "Help & Support", sub: "Contact CoFund team" },
+          { icon: "settings" as const, label: "Business Settings", sub: "Update business info", onPress: () => router.push("/(business)/edit-profile" as any) },
+          { icon: "bell" as const, label: "Notifications", sub: "Investor alerts", onPress: () => router.push("/notifications") },
+          { icon: "lock" as const, label: "Security", sub: "Password & 2FA", onPress: () => Alert.alert("Security", "This needs your auth policy and 2FA provider details before it can be built.") },
+          { icon: "help-circle" as const, label: "Help & Support", sub: "Contact CoFund team", onPress: () => Alert.alert("Support", "This needs your support email, phone, or helpdesk setup.") },
         ].map((item, idx, arr) => (
-          <Pressable key={item.label} style={[styles.menuItem, idx < arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.borderLight }]}>
+          <PressableScale key={item.label} style={[styles.menuItem, idx < arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.borderLight }]} onPress={item.onPress}>
             <View style={[styles.menuIcon, { backgroundColor: colors.accentLight }]}>
               <Feather name={item.icon} size={16} color={colors.accent} />
             </View>
@@ -99,7 +109,7 @@ export default function BusinessProfile() {
               <Text style={[styles.menuSub, { color: colors.mutedForeground }]}>{item.sub}</Text>
             </View>
             <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
-          </Pressable>
+          </PressableScale>
         ))}
       </View>
 
@@ -118,7 +128,10 @@ export default function BusinessProfile() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   content: { paddingHorizontal: 20, gap: 14 },
+  titleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold", marginBottom: 4 },
+  editBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1 },
+  editBtnText: { fontSize: 13, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   profileCard: { borderRadius: 18, padding: 24, alignItems: "center", gap: 4 },
   avatarWrap: { position: "relative", marginBottom: 4 },
   avatarLarge: { width: 72, height: 72, borderRadius: 22, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" },

@@ -205,7 +205,7 @@ export default function BusinessDashboard() {
             { icon: "file-plus" as const,    label: "New Request", sub: "Create funding round", color: colors.primary, onPress: () => router.push("/(business)/create") },
             { icon: "message-square" as const,label: "Post Update", sub: "Share progress",       color: colors.accent,  onPress: () => router.push("/(business)/updates") },
             { icon: "bar-chart-2" as const,  label: "Analytics",   sub: "View performance",     color: colors.gold,    onPress: () => router.push("/(business)/analytics") },
-            { icon: "users" as const,        label: "Investors",   sub: "Your backers",          color: colors.purple,  onPress: () => {} },
+            { icon: "users" as const,        label: "Investors",   sub: "Your backers",          color: colors.purple,  onPress: () => router.push("/(business)/investors" as any) },
           ].map((a) => (
             <PressableScale
               key={a.label}

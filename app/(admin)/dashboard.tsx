@@ -204,7 +204,9 @@ export default function AdminDashboard() {
               <View style={[styles.quickIcon, { backgroundColor: q.color + "18" }]}>
                 <Feather name={q.icon} size={20} color={q.color} />
               </View>
-              <Text style={[styles.quickLabel, { color: colors.foreground }]}>{q.label}</Text>
+              <Text style={[styles.quickLabel, { color: colors.foreground }]} numberOfLines={2}>
+                {q.label}
+              </Text>
             </PressableScale>
           ))}
         </View>
@@ -261,8 +263,8 @@ const styles = StyleSheet.create({
   actionIcon: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   actionLabel: { fontSize: 14, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   actionSub: { fontSize: 12, marginTop: 2, fontFamily: "Inter_400Regular" },
-  quickGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 20 },
-  quickCard: { width: "47%", borderRadius: 12, borderWidth: 1, padding: 14, alignItems: "center", gap: 10 },
+  quickGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 10, marginBottom: 20 },
+  quickCard: { width: "48%", minHeight: 132, borderRadius: 12, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 16, alignItems: "center", justifyContent: "center", gap: 10 },
   quickIcon: { width: 44, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  quickLabel: { fontSize: 13, fontWeight: "600", textAlign: "center", fontFamily: "Inter_600SemiBold" },
+  quickLabel: { fontSize: 15, lineHeight: 20, fontWeight: "600", textAlign: "center", fontFamily: "Inter_600SemiBold" },
 });

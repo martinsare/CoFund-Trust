@@ -83,7 +83,16 @@ export default function AdminSettings() {
       </Animated.View>
 
       <FadeSlideIn delay={80}>
-        <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>Admin Profile</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionLabel, { color: colors.mutedForeground, marginTop: 0, marginBottom: 0 }]}>Admin Profile</Text>
+          <PressableScale
+            style={[styles.editBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            onPress={() => router.push("/(admin)/edit-profile" as any)}
+          >
+            <Feather name="edit-2" size={13} color={colors.foreground} />
+            <Text style={[styles.editBtnText, { color: colors.foreground }]}>Edit</Text>
+          </PressableScale>
+        </View>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           {ADMIN_INFO.map((info, i) => (
             <View key={info.label} style={[styles.infoRow, i < ADMIN_INFO.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.borderLight }]}>
@@ -123,15 +132,16 @@ export default function AdminSettings() {
         <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>Platform Management</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           {[
-            { icon: "percent" as const, label: "Fee Structure", sub: "Manage platform fees and commission rates", color: "#c9860d" },
-            { icon: "shield" as const, label: "Trust Score Algorithm", sub: "Configure scoring weights and thresholds", color: "#1a5e9a" },
-            { icon: "mail" as const, label: "Email Templates", sub: "Investor and SME notification templates", color: "#2db56e" },
-            { icon: "lock" as const, label: "Security Settings", sub: "2FA, session limits, and access controls", color: "#7c3aed" },
-            { icon: "database" as const, label: "Data & Backups", sub: "Export platform data and manage backups", color: "#e08c1a" },
+            { icon: "percent" as const, label: "Fee Structure", sub: "Manage platform fees and commission rates", color: "#c9860d", onPress: () => Alert.alert("Fee Structure", "This needs your fee schedule and commission policy before we can build a live editor.") },
+            { icon: "shield" as const, label: "Trust Score Algorithm", sub: "Configure scoring weights and thresholds", color: "#1a5e9a", onPress: () => Alert.alert("Trust Score", "This needs your scoring formula and rule weights before we can build the editor.") },
+            { icon: "mail" as const, label: "Email Templates", sub: "Investor and SME notification templates", color: "#2db56e", onPress: () => Alert.alert("Email Templates", "This needs your template copy and delivery provider setup.") },
+            { icon: "lock" as const, label: "Security Settings", sub: "2FA, session limits, and access controls", color: "#7c3aed", onPress: () => Alert.alert("Security Settings", "This needs your auth policy and 2FA provider details.") },
+            { icon: "database" as const, label: "Data & Backups", sub: "Export platform data and manage backups", color: "#e08c1a", onPress: () => Alert.alert("Data & Backups", "This needs backup storage and export requirements before it can be made live.") },
           ].map((item, i, arr) => (
             <PressableScale
               key={item.label}
               style={[styles.menuItem, i < arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.borderLight }]}
+              onPress={item.onPress}
             >
               <View style={[styles.menuIcon, { backgroundColor: item.color + "18" }]}>
                 <Feather name={item.icon} size={16} color={item.color} />
@@ -165,7 +175,10 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, gap: 0 },
   header: { marginBottom: 20 },
   title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold" },
+  sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 16, marginBottom: 8 },
   sectionLabel: { fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.8, fontFamily: "Inter_600SemiBold", marginBottom: 8, marginTop: 16 },
+  editBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, borderWidth: 1 },
+  editBtnText: { fontSize: 12, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   card: { borderRadius: 14, borderWidth: 1, overflow: "hidden", marginBottom: 4 },
   infoRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 13, gap: 12 },
   infoIcon: { width: 32, height: 32, borderRadius: 9, alignItems: "center", justifyContent: "center" },

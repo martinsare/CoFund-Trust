@@ -70,6 +70,12 @@ export default function AdminLayout() {
           tabBarIcon: ({ color }) => <Feather name="settings" size={22} color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="edit-profile"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

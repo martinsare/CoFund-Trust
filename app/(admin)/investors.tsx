@@ -1,4 +1,5 @@
 import { Feather } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -24,10 +25,11 @@ export default function AdminInvestors() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
+  const [investors, setInvestors] = useState(MOCK_INVESTORS);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
 
-  const filtered = MOCK_INVESTORS.filter((u) => {
+  const filtered = investors.filter((u) => {
     const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase());
     if (filter === "Active") return matchSearch && u.status === "active";
@@ -36,8 +38,13 @@ export default function AdminInvestors() {
     return matchSearch;
   });
 
-  const totalInvested = MOCK_INVESTORS.reduce((s, u) => s + u.invested, 0);
-  const activeCount = MOCK_INVESTORS.filter((u) => u.status === "active").length;
+  const totalInvested = investors.reduce((s, u) => s + u.invested, 0);
+  const activeCount = investors.filter((u) => u.status === "active").length;
+
+  const reviewInvestor = (id: string) => {
+    setInvestors((prev) => prev.map((u) => (u.id === id ? { ...u, status: "active", kyc: "Tier 1" } : u)));
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
 
   return (
     <ScrollView
@@ -106,9 +113,9 @@ export default function AdminInvestors() {
         <FadeSlideIn key={inv.id} delay={240 + i * 50}>
           <PressableScale style={[styles.investorCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.invTop}>
-              <View style={[styles.invAvatar, { backgroundColor: inv.status === "active" ? "#1a5e9a" : inv.status === "suspended" ? "#e03e3e" : "#e08c1a" }]}>
-                <Text style={styles.invAvatarText}>{inv.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</Text>
-              </View>
+            <View style={[styles.invAvatar, { backgroundColor: inv.status === "active" ? "#1a5e9a" : inv.status === "suspended" ? "#e03e3e" : "#e08c1a" }]}>
+              <Text style={styles.invAvatarText}>{inv.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</Text>
+            </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.invName, { color: colors.foreground }]}>{inv.name}</Text>
                 <Text style={[styles.invEmail, { color: colors.mutedForeground }]}>{inv.email}</Text>
@@ -122,7 +129,10 @@ export default function AdminInvestors() {
               <MetaItem icon="calendar" label={`Joined ${inv.joined}`} colors={colors} />
             </View>
             {inv.status === "pending_kyc" && (
-              <PressableScale style={[styles.kycBtn, { backgroundColor: "#ddeaf8", borderColor: "#1a5e9a" }]}>
+              <PressableScale
+                style={[styles.kycBtn, { backgroundColor: "#ddeaf8", borderColor: "#1a5e9a" }]}
+                onPress={() => reviewInvestor(inv.id)}
+              >
                 <Feather name="shield" size={13} color="#1a5e9a" />
                 <Text style={[styles.kycBtnText, { color: "#1a5e9a" }]}>Review KYC Documents</Text>
               </PressableScale>
