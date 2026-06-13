@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   copyText: { fontSize: 13, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   shareBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 10, paddingVertical: 13 },
   shareBtnText: { color: "#fff", fontSize: 15, fontWeight: "700", fontFamily: "Inter_700Bold" },
-  sectionTitle: { fontSize: 17, fontWeight: "700", fontFamily: "Inter_700Bold", marginBottom: 4 },
+  sectionTitle: { fontSize: 17, fontWeight: "700", fontFamily: "Inter_700Bold", marginBottom: 5 },
   howRow: { flexDirection: "row", gap: 10 },
   howCard: { flex: 1, borderRadius: 12, borderWidth: 1, padding: 12, gap: 6 },
   howStep: { width: 28, height: 28, borderRadius: 8, alignItems: "center", justifyContent: "center" },

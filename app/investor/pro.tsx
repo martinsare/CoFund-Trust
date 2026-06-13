@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   heroTitle: { color: "#fff", fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold", lineHeight: 34 },
   heroSub: { color: "rgba(255,255,255,0.65)", fontSize: 14, lineHeight: 21, fontFamily: "Inter_400Regular" },
   heroDeco: { position: "absolute", right: -30, top: -30 },
-  sectionTitle: { fontSize: 17, fontWeight: "700", fontFamily: "Inter_700Bold", marginBottom: 4 },
+  sectionTitle: { fontSize: 17, fontWeight: "700", fontFamily: "Inter_700Bold", marginBottom: 5 },
   benefitsCard: { borderRadius: 14, borderWidth: 1, overflow: "hidden" },
   benefitRow: { flexDirection: "row", alignItems: "center", padding: 16, gap: 12 },
   benefitIcon: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
