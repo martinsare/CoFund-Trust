@@ -20,12 +20,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
 import { useAuth } from "@/context/AuthContext";
+import { COUNTRIES } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
-
-const COUNTRIES = [
-  "Nigeria", "Ghana", "Kenya", "South Africa", "Ethiopia", "Egypt",
-  "Tanzania", "Uganda", "Rwanda", "Senegal", "Cote d'Ivoire", "Cameroon",
-];
 
 export default function AdminEditProfile() {
   const colors = useColors();

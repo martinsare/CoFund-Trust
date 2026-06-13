@@ -22,24 +22,12 @@ import { PressableScale } from "@/components/AnimatedPrimitives";
 import { UserRole, useAuth } from "@/context/AuthContext";
 import { usePin } from "@/context/PinContext";
 import { useSystemData } from "@/context/SystemContext";
+import {
+  ANNUAL_REVENUE, BUSINESS_TYPES, COUNTRIES, EXPERIENCE_OPTIONS,
+  FUND_SOURCES, INCOME_RANGES, INDUSTRIES, INVESTMENT_GOALS,
+  RISK_OPTIONS, YEARS_OPERATING,
+} from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
-
-const COUNTRIES = ["Nigeria", "Ghana", "Kenya", "South Africa", "Ethiopia", "Rwanda", "Uganda", "Tanzania", "Cameroon", "Senegal"];
-
-const INVESTMENT_GOALS = ["Grow wealth", "Passive income", "Retirement planning", "Save for future", "Diversify portfolio"];
-const RISK_OPTIONS = [
-  { label: "Conservative", sub: "Preserve capital, low risk", icon: "shield" as const },
-  { label: "Moderate", sub: "Balanced growth & safety", icon: "activity" as const },
-  { label: "Aggressive", sub: "High growth, higher risk", icon: "trending-up" as const },
-];
-const EXPERIENCE_OPTIONS = ["First timer", "1–2 years", "3–5 years", "5+ years"];
-const INCOME_RANGES = ["Below ₦100k/mo", "₦100k – ₦500k/mo", "₦500k – ₦1M/mo", "Above ₦1M/mo"];
-const FUND_SOURCES = ["Salary / Employment", "Business income", "Inheritance", "Savings", "Investments / Dividends"];
-
-const BUSINESS_TYPES = ["Sole Proprietorship", "Partnership", "Limited Liability (LLC)", "NGO / Non-profit"];
-const YEARS_OPERATING = ["Less than 1 year", "1–2 years", "3–5 years", "5+ years"];
-const ANNUAL_REVENUE = ["Below ₦1M", "₦1M – ₦5M", "₦5M – ₦20M", "Above ₦20M"];
-const INDUSTRIES = ["Agriculture", "Healthcare", "Logistics", "Technology", "Hospitality", "Real Estate", "Manufacturing", "Retail", "Energy", "Education", "Finance", "Other"];
 
 const TOTAL_STEPS = 5;
 
@@ -414,7 +402,7 @@ export default function Register() {
                   onPress={() => { setRiskTolerance(r.label); Haptics.selectionAsync(); }}
                 >
                   <View style={[styles.riskIcon, { backgroundColor: riskTolerance === r.label ? colors.primaryLight : colors.muted }]}>
-                    <Feather name={r.icon} size={16} color={riskTolerance === r.label ? colors.primary : colors.mutedForeground} />
+                    <Feather name={r.icon as any} size={16} color={riskTolerance === r.label ? colors.primary : colors.mutedForeground} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.riskLabel, { color: riskTolerance === r.label ? colors.primary : colors.foreground }]}>{r.label}</Text>

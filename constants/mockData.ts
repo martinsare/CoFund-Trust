@@ -779,3 +779,199 @@ export const formatCurrency = (amount: number): string => {
   if (amount >= 1000) return `₦${(amount / 1000).toFixed(0)}K`;
   return `₦${amount.toLocaleString()}`;
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LOOKUP / REFERENCE DATA  (seeded into DB; replace these arrays with queries)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const COUNTRIES: string[] = [
+  "Nigeria", "Ghana", "Kenya", "South Africa", "Ethiopia", "Egypt",
+  "Tanzania", "Uganda", "Rwanda", "Senegal", "Côte d'Ivoire", "Cameroon",
+  "Zambia", "Zimbabwe", "Mozambique", "Botswana", "Malawi",
+];
+
+export const INDUSTRIES: string[] = [
+  "Agriculture", "Healthcare", "Logistics", "Technology", "Hospitality",
+  "Real Estate", "Manufacturing", "Retail", "Energy", "Education", "Finance", "Other",
+];
+
+export const INVESTMENT_GOALS: string[] = [
+  "Grow wealth", "Passive income", "Retirement planning", "Save for future", "Diversify portfolio",
+];
+
+export const RISK_OPTIONS: { label: string; sub: string; icon: string }[] = [
+  { label: "Conservative", sub: "Preserve capital, low risk",      icon: "shield" },
+  { label: "Moderate",     sub: "Balanced growth & safety",        icon: "activity" },
+  { label: "Aggressive",   sub: "High growth, higher risk",        icon: "trending-up" },
+];
+
+export const EXPERIENCE_OPTIONS: string[] = [
+  "First timer", "1–2 years", "3–5 years", "5+ years",
+];
+
+export const INCOME_RANGES: string[] = [
+  "Below ₦100k/mo", "₦100k – ₦500k/mo", "₦500k – ₦1M/mo", "Above ₦1M/mo",
+];
+
+export const FUND_SOURCES: string[] = [
+  "Salary / Employment", "Business income", "Inheritance", "Savings", "Investments / Dividends",
+];
+
+export const BUSINESS_TYPES: string[] = [
+  "Sole Proprietorship", "Partnership", "Limited Liability (LLC)", "NGO / Non-profit",
+];
+
+export const YEARS_OPERATING: string[] = [
+  "Less than 1 year", "1–2 years", "3–5 years", "5+ years",
+];
+
+export const ANNUAL_REVENUE: string[] = [
+  "Below ₦1M", "₦1M – ₦5M", "₦5M – ₦20M", "Above ₦20M",
+];
+
+export const INVESTMENT_TYPES: string[] = [
+  "Profit Share", "Fixed Return", "Asset-Backed", "Asset Leasing", "Working Capital",
+];
+
+export const INVESTMENT_DURATIONS: string[] = [
+  "6 months", "12 months", "18 months", "24 months", "30 months", "36 months",
+];
+
+export const DISPUTE_CATEGORIES: string[] = [
+  "Milestone Delay", "Payout Delay", "Communication Gap", "Document Issue", "Other",
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PLATFORM CONFIG  (stored in DB; drives KYC, Pro, and referral features)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface KycTier {
+  tier: number;
+  label: string;
+  limit: string;
+  status: "verified" | "in_progress" | "locked";
+  requirements: string[];
+  description: string;
+}
+
+export const KYC_TIERS: KycTier[] = [
+  {
+    tier: 1,
+    label: "Tier 1 — Basic",
+    limit: "₦500K/investment",
+    status: "verified",
+    requirements: ["Valid NIN or BVN", "Email verification", "Phone number"],
+    description: "Identity verified. You can invest up to ₦500,000 per opportunity.",
+  },
+  {
+    tier: 2,
+    label: "Tier 2 — Enhanced",
+    limit: "₦5M/investment",
+    status: "in_progress",
+    requirements: ["National ID card or Passport", "Utility bill (last 3 months)", "Bank statement"],
+    description: "Enhanced due diligence for larger investments up to ₦5 million.",
+  },
+  {
+    tier: 3,
+    label: "Tier 3 — Institutional",
+    limit: "Unlimited",
+    status: "locked",
+    requirements: ["CAC registration documents", "Board resolution", "Audited financials (2 years)"],
+    description: "Full institutional access with no investment limits.",
+  },
+];
+
+export interface ProBenefit { icon: string; label: string; desc: string; }
+export interface ProPlan    { id: string; label: string; price: number; period: string; saving: string | null; popular: boolean; }
+
+export const PRO_BENEFITS: ProBenefit[] = [
+  { icon: "zap",        label: "Early Access",          desc: "Get 24-hour early access to new investment listings" },
+  { icon: "bar-chart-2",label: "Advanced Analytics",    desc: "Deep portfolio analysis with risk scores and projections" },
+  { icon: "repeat",     label: "Priority Market",       desc: "First pick on Secondary Market listings at par value" },
+  { icon: "shield",     label: "Investment Insurance",  desc: "Up to ₦2M coverage on eligible investments" },
+  { icon: "headphones", label: "Dedicated Support",     desc: "Priority chat & phone support with 2-hour response SLA" },
+];
+
+export const PRO_PLANS: ProPlan[] = [
+  { id: "monthly",   label: "Monthly",   price: 5000,  period: "/month",     saving: null,       popular: false },
+  { id: "quarterly", label: "Quarterly", price: 12000, period: "/3 months",  saving: "Save 20%", popular: true  },
+  { id: "annual",    label: "Annual",    price: 40000, period: "/year",       saving: "Save 33%", popular: false },
+];
+
+export interface ReferralStep { step: string; label: string; desc: string; }
+export const REFERRAL_HOW_IT_WORKS: ReferralStep[] = [
+  { step: "1", label: "Share your code",  desc: "Send your unique referral link or code to friends & family" },
+  { step: "2", label: "They sign up",     desc: "Your referral registers and completes KYC verification" },
+  { step: "3", label: "Earn ₦5,000",     desc: "You get ₦5,000 in your wallet when they make their first investment" },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DEMO / SEED RECORDS  (replace with live DB queries once connected)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface MockInvestor {
+  id: string; name: string; email: string; country: string;
+  kyc: string; invested: number; investments: number; joined: string; status: string;
+}
+
+export const MOCK_INVESTORS: MockInvestor[] = [
+  { id: "1", name: "Adebayo Okafor",  email: "investor@cofund.africa",      country: "Nigeria", kyc: "Tier 2", invested: 2500000, investments: 4, joined: "Jan 2025", status: "active" },
+  { id: "2", name: "Chioma Eze",      email: "chioma.eze@gmail.com",        country: "Nigeria", kyc: "Tier 1", invested: 850000,  investments: 2, joined: "Feb 2025", status: "active" },
+  { id: "3", name: "Kwame Mensah",    email: "kwame.m@outlook.com",         country: "Ghana",   kyc: "None",   invested: 0,       investments: 0, joined: "Mar 2025", status: "pending_kyc" },
+  { id: "4", name: "Fatima Al-Hassan",email: "fatima.h@proton.me",          country: "Nigeria", kyc: "Tier 1", invested: 1200000, investments: 3, joined: "Jan 2025", status: "active" },
+  { id: "5", name: "Emeka Obi",       email: "emeka.obi@yahoo.com",         country: "Nigeria", kyc: "Tier 2", invested: 5000000, investments: 7, joined: "Nov 2024", status: "active" },
+  { id: "6", name: "Amina Yusuf",     email: "aminayusuf@gmail.com",        country: "Nigeria", kyc: "None",   invested: 0,       investments: 0, joined: "Apr 2025", status: "suspended" },
+];
+
+export interface ReferralHistoryItem { id: string; name: string; joined: string; status: string; earned: number; }
+export const MOCK_REFERRAL_HISTORY: ReferralHistoryItem[] = [
+  { id: "r1", name: "Chukwuemeka O.", joined: "Jun 2, 2026",  status: "invested",    earned: 5000 },
+  { id: "r2", name: "Fatima A.",      joined: "May 18, 2026", status: "invested",    earned: 5000 },
+  { id: "r3", name: "Tunde B.",       joined: "May 5, 2026",  status: "invested",    earned: 5000 },
+  { id: "r4", name: "Ngozi E.",       joined: "Apr 22, 2026", status: "registered",  earned: 0    },
+  { id: "r5", name: "Bello M.",       joined: "Apr 10, 2026", status: "invested",    earned: 5000 },
+];
+
+export interface RevenueDataPoint { month: string; value: number; label: string; }
+export const ADMIN_REVENUE_DATA: RevenueDataPoint[] = [
+  { month: "Jan", value: 28, label: "₦28M" },
+  { month: "Feb", value: 34, label: "₦34M" },
+  { month: "Mar", value: 31, label: "₦31M" },
+  { month: "Apr", value: 42, label: "₦42M" },
+  { month: "May", value: 38, label: "₦38M" },
+  { month: "Jun", value: 48, label: "₦48M" },
+];
+
+export interface InvestmentBreakdownItem { label: string; percent: number; color: string; }
+export const ADMIN_INVESTMENT_BREAKDOWN: InvestmentBreakdownItem[] = [
+  { label: "Profit Share",  percent: 42, color: "#1a5e9a" },
+  { label: "Fixed Return",  percent: 28, color: "#2db56e" },
+  { label: "Asset-Backed",  percent: 18, color: "#c9860d" },
+  { label: "Real Estate",   percent: 12, color: "#7c3aed" },
+];
+
+export interface AdminTransaction { type: string; label: string; amount: string; date: string; icon: string; color: string; }
+export const ADMIN_RECENT_TRANSACTIONS: AdminTransaction[] = [
+  { type: "investment", label: "New investment — Lagos Pharma",          amount: "+₦500,000",     date: "Today 09:14",  icon: "trending-up",  color: "#2db56e" },
+  { type: "payout",     label: "Payout — Batch #13",                     amount: "-₦12,400,000",  date: "Yesterday",    icon: "download",     color: "#e03e3e" },
+  { type: "fee",        label: "Platform fee — TechBridge Solutions",    amount: "+₦85,000",      date: "Jun 10",       icon: "dollar-sign",  color: "#c9860d" },
+  { type: "investment", label: "New investment — GreenHouse Agro",       amount: "+₦1,200,000",   date: "Jun 9",        icon: "trending-up",  color: "#2db56e" },
+  { type: "listing",    label: "SME listing fee — Apex Logistics",       amount: "+₦150,000",     date: "Jun 8",        icon: "package",      color: "#7c3aed" },
+];
+
+export interface PlatformStat { label: string; value: string; icon: string; color: string; change: string; }
+export const ADMIN_PLATFORM_STATS: PlatformStat[] = [
+  { label: "Total Users",       value: "1,248",   icon: "users",        color: "#7c3aed", change: "+12 this week" },
+  { label: "Active Businesses", value: "87",      icon: "briefcase",    color: "#1a5e9a", change: "+4 this week" },
+  { label: "Total Invested",    value: "₦2.4B",   icon: "trending-up",  color: "#2db56e", change: "+₦180M this month" },
+  { label: "Platform Revenue",  value: "₦48.2M",  icon: "dollar-sign",  color: "#c9860d", change: "+₦6.1M this month" },
+];
+
+export interface PendingAction { type: string; label: string; sub: string; icon: string; color: string; route: string; }
+export const ADMIN_PENDING_ACTIONS: PendingAction[] = [
+  { type: "kyb",     label: "GreenHouse Agro Ltd",          sub: "Stage 2 KYB — director IDs & BVN submitted, awaiting AML screen",    icon: "shield",         color: "#e08c1a", route: "/(admin)/businesses" },
+  { type: "kyb",     label: "TechBridge Solutions",          sub: "Stage 1 eligibility review — CAC cert received",                      icon: "file-text",      color: "#e08c1a", route: "/(admin)/businesses" },
+  { type: "brfr",    label: "TechHub Coworking Network",     sub: "BRRF: Orange — missed Q1 milestone, recovery plan requested",         icon: "alert-triangle", color: "#e06030", route: "/(admin)/businesses" },
+  { type: "payout",  label: "Investor Payout Batch #14",     sub: "₦12.4M scheduled for escrow release — approve now",                  icon: "dollar-sign",    color: "#2db56e", route: "/(admin)/reports"    },
+  { type: "dispute", label: "Dispute: INV-0042",              sub: "Investor raised concern on Lagos Pharma milestone 3",                 icon: "alert-circle",   color: "#e03e3e", route: "/(admin)/disputes"   },
+];

@@ -2,3 +2,4 @@
 - [PIN & biometric auth](pin-auth.md) — banking-style overlay system using expo-local-authentication + expo-secure-store
 - [Business registration flow](business-registration.md) — businesses self-register; createBusiness() called after register() to create pending record
 - [SystemContext currentBusiness](system-context.md) — removed ?? businesses[0] fallback; null means truly unregistered
+- [mockData consolidation](mockdata-consolidation.md) — all app constants and demo data live in constants/mockData.ts; screen files import (with aliases where names differ); icon/route fields use `as any` cast for Feather compatibility

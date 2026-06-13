@@ -17,11 +17,8 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { INDUSTRIES, INVESTMENT_DURATIONS as DURATIONS, INVESTMENT_TYPES } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
-
-const INVESTMENT_TYPES = ["Profit Share", "Fixed Return", "Asset-Backed", "Asset Leasing", "Working Capital"];
-const INDUSTRIES = ["Agriculture", "Healthcare", "Logistics", "Technology", "Hospitality", "Real Estate", "Manufacturing", "Retail", "Energy"];
-const DURATIONS = ["6 months", "12 months", "18 months", "24 months", "30 months", "36 months"];
 
 export default function CreateFundingRequest() {
   const colors = useColors();

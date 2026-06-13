@@ -17,12 +17,10 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
-import { INVESTMENTS } from "@/constants/mockData";
+import { DISPUTE_CATEGORIES as CATEGORIES, INVESTMENTS } from "@/constants/mockData";
 import { useAuth } from "@/context/AuthContext";
 import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
-
-const CATEGORIES = ["Milestone Delay", "Payout Delay", "Communication Gap", "Document Issue", "Other"];
 
 export default function InvestorDispute() {
   const colors = useColors();

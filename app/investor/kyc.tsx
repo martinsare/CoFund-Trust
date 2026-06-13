@@ -7,34 +7,8 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
+import { KYC_TIERS } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
-
-const KYC_TIERS = [
-  {
-    tier: 1,
-    label: "Tier 1 — Basic",
-    limit: "₦500K/investment",
-    status: "verified" as const,
-    requirements: ["Valid NIN or BVN", "Email verification", "Phone number"],
-    description: "Identity verified. You can invest up to ₦500,000 per opportunity.",
-  },
-  {
-    tier: 2,
-    label: "Tier 2 — Enhanced",
-    limit: "₦5M/investment",
-    status: "in_progress" as const,
-    requirements: ["National ID card or Passport", "Utility bill (last 3 months)", "Bank statement"],
-    description: "Enhanced due diligence for larger investments up to ₦5 million.",
-  },
-  {
-    tier: 3,
-    label: "Tier 3 — Institutional",
-    limit: "Unlimited",
-    status: "locked" as const,
-    requirements: ["CAC registration documents", "Board resolution", "Audited financials (2 years)"],
-    description: "Full institutional access with no investment limits.",
-  },
-];
 
 export default function KYCScreen() {
   const colors = useColors();

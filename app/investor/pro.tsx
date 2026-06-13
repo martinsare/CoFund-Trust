@@ -7,21 +7,8 @@ import Animated, { FadeInDown, FadeInUp, ZoomIn } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
+import { PRO_BENEFITS as BENEFITS, PRO_PLANS as PLANS } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
-
-const BENEFITS = [
-  { icon: "zap" as const, label: "Early Access", desc: "Get 24-hour early access to new investment listings" },
-  { icon: "bar-chart-2" as const, label: "Advanced Analytics", desc: "Deep portfolio analysis with risk scores and projections" },
-  { icon: "repeat" as const, label: "Priority Market", desc: "First pick on Secondary Market listings at par value" },
-  { icon: "shield" as const, label: "Investment Insurance", desc: "Up to ₦2M coverage on eligible investments" },
-  { icon: "headphones" as const, label: "Dedicated Support", desc: "Priority chat & phone support with 2-hour response SLA" },
-];
-
-const PLANS = [
-  { id: "monthly", label: "Monthly", price: 5000, period: "/month", saving: null, popular: false },
-  { id: "quarterly", label: "Quarterly", price: 12000, period: "/3 months", saving: "Save 20%", popular: true },
-  { id: "annual", label: "Annual", price: 40000, period: "/year", saving: "Save 33%", popular: false },
-];
 
 export default function CoFundPro() {
   const colors = useColors();
@@ -75,7 +62,7 @@ export default function CoFundPro() {
               style={[styles.benefitRow, i < BENEFITS.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.borderLight }]}
             >
               <View style={[styles.benefitIcon, { backgroundColor: "#7c3aed18" }]}>
-                <Feather name={b.icon} size={16} color="#7c3aed" />
+                <Feather name={b.icon as any} size={16} color="#7c3aed" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.benefitLabel, { color: colors.foreground }]}>{b.label}</Text>

@@ -8,23 +8,13 @@ import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
+import {
+  MOCK_REFERRAL_HISTORY as HISTORY,
+  REFERRAL_HOW_IT_WORKS as HOW_IT_WORKS,
+} from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
 
 const REFERRAL_CODE = "ADEBAYO-2026";
-
-const HISTORY = [
-  { id: "r1", name: "Chukwuemeka O.", joined: "Jun 2, 2026", status: "invested", earned: 5000 },
-  { id: "r2", name: "Fatima A.", joined: "May 18, 2026", status: "invested", earned: 5000 },
-  { id: "r3", name: "Tunde B.", joined: "May 5, 2026", status: "invested", earned: 5000 },
-  { id: "r4", name: "Ngozi E.", joined: "Apr 22, 2026", status: "registered", earned: 0 },
-  { id: "r5", name: "Bello M.", joined: "Apr 10, 2026", status: "invested", earned: 5000 },
-];
-
-const HOW_IT_WORKS = [
-  { step: "1", label: "Share your code", desc: "Send your unique referral link or code to friends & family" },
-  { step: "2", label: "They sign up", desc: "Your referral registers and completes KYC verification" },
-  { step: "3", label: "Earn ₦5,000", desc: "You get ₦5,000 in your wallet when they make their first investment" },
-];
 
 export default function ReferralScreen() {
   const colors = useColors();

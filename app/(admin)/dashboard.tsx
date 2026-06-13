@@ -8,24 +8,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
 import { useAuth } from "@/context/AuthContext";
-import { INVESTMENTS, formatCurrency } from "@/constants/mockData";
+import {
+  ADMIN_PENDING_ACTIONS as PENDING_ACTIONS,
+  ADMIN_PLATFORM_STATS as PLATFORM_STATS,
+  INVESTMENTS,
+  formatCurrency,
+} from "@/constants/mockData";
 import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
-
-const PLATFORM_STATS = [
-  { label: "Total Users", value: "1,248", icon: "users" as const, color: "#7c3aed", change: "+12 this week" },
-  { label: "Active Businesses", value: "87", icon: "briefcase" as const, color: "#1a5e9a", change: "+4 this week" },
-  { label: "Total Invested", value: "₦2.4B", icon: "trending-up" as const, color: "#2db56e", change: "+₦180M this month" },
-  { label: "Platform Revenue", value: "₦48.2M", icon: "dollar-sign" as const, color: "#c9860d", change: "+₦6.1M this month" },
-];
-
-const PENDING_ACTIONS = [
-  { type: "kyb", label: "GreenHouse Agro Ltd", sub: "Stage 2 KYB — director IDs & BVN submitted, awaiting AML screen", icon: "shield" as const, color: "#e08c1a", route: "/(admin)/businesses" as const },
-  { type: "kyb", label: "TechBridge Solutions", sub: "Stage 1 eligibility review — CAC cert received", icon: "file-text" as const, color: "#e08c1a", route: "/(admin)/businesses" as const },
-  { type: "brfr", label: "TechHub Coworking Network", sub: "BRRF: Orange — missed Q1 milestone, recovery plan requested", icon: "alert-triangle" as const, color: "#e06030", route: "/(admin)/businesses" as const },
-  { type: "payout", label: "Investor Payout Batch #14", sub: "₦12.4M scheduled for escrow release — approve now", icon: "dollar-sign" as const, color: "#2db56e", route: "/(admin)/reports" as const },
-  { type: "dispute", label: "Dispute: INV-0042", sub: "Investor raised concern on Lagos Pharma milestone 3", icon: "alert-circle" as const, color: "#e03e3e", route: "/(admin)/disputes" as const },
-];
 
 export default function AdminDashboard() {
   const colors = useColors();
@@ -164,7 +154,7 @@ export default function AdminDashboard() {
           <FadeSlideIn key={s.label} delay={220 + i * 60} style={styles.statWrap}>
             <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <View style={[styles.statIcon, { backgroundColor: s.color + "18" }]}>
-                <Feather name={s.icon} size={15} color={s.color} />
+                <Feather name={s.icon as any} size={15} color={s.color} />
               </View>
               <Text style={[styles.statVal, { color: colors.foreground }]}>{s.value}</Text>
               <Text style={[styles.statLabel, { color: colors.mutedForeground }]}>{s.label}</Text>
@@ -185,10 +175,10 @@ export default function AdminDashboard() {
           <FadeSlideIn key={i} delay={520 + i * 60}>
             <PressableScale
               style={[styles.actionCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-              onPress={() => router.push(a.route)}
+              onPress={() => router.push(a.route as any)}
             >
               <View style={[styles.actionIcon, { backgroundColor: a.color + "18" }]}>
-                <Feather name={a.icon} size={16} color={a.color} />
+                <Feather name={a.icon as any} size={16} color={a.color} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.actionLabel, { color: colors.foreground }]}>{a.label}</Text>

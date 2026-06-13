@@ -18,10 +18,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
 import { useSystemData } from "@/context/SystemContext";
+import { INDUSTRIES, INVESTMENT_TYPES } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
 
-const INDUSTRIES = ["Agriculture", "Healthcare", "Logistics", "Technology", "Hospitality", "Real Estate", "Manufacturing", "Retail", "Energy"];
-const INVESTMENT_TYPES = ["Profit Share", "Fixed Return", "Asset-Backed", "Asset Leasing", "Working Capital"];
 const RISK_LEVELS = ["low", "medium", "high"] as const;
 
 export default function AdminCreateBusiness() {

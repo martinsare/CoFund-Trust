@@ -7,10 +7,8 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
-import { formatCurrency } from "@/constants/mockData";
+import { MOCK_INVESTORS, formatCurrency } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
-
-import { MOCK_INVESTORS } from "../investors";
 
 export default function InvestorDetailScreen() {
   const colors = useColors();

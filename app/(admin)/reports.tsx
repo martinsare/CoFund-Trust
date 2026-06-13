@@ -6,33 +6,14 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
+import {
+  ADMIN_INVESTMENT_BREAKDOWN as INVESTMENT_BREAKDOWN,
+  ADMIN_RECENT_TRANSACTIONS as RECENT_TRANSACTIONS,
+  ADMIN_REVENUE_DATA as REVENUE_DATA,
+} from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
 
 const PERIODS = ["This Month", "Last Month", "Q1 2025", "All Time"];
-
-const REVENUE_DATA = [
-  { month: "Jan", value: 28, label: "₦28M" },
-  { month: "Feb", value: 34, label: "₦34M" },
-  { month: "Mar", value: 31, label: "₦31M" },
-  { month: "Apr", value: 42, label: "₦42M" },
-  { month: "May", value: 38, label: "₦38M" },
-  { month: "Jun", value: 48, label: "₦48M" },
-];
-
-const INVESTMENT_BREAKDOWN = [
-  { label: "Profit Share", percent: 42, color: "#1a5e9a" },
-  { label: "Fixed Return", percent: 28, color: "#2db56e" },
-  { label: "Asset-Backed", percent: 18, color: "#c9860d" },
-  { label: "Real Estate", percent: 12, color: "#7c3aed" },
-];
-
-const RECENT_TRANSACTIONS = [
-  { type: "investment", label: "New investment — Lagos Pharma", amount: "+₦500,000", date: "Today 09:14", icon: "trending-up" as const, color: "#2db56e" },
-  { type: "payout", label: "Payout — Batch #13", amount: "-₦12,400,000", date: "Yesterday", icon: "download" as const, color: "#e03e3e" },
-  { type: "fee", label: "Platform fee — TechBridge Solutions", amount: "+₦85,000", date: "Jun 10", icon: "dollar-sign" as const, color: "#c9860d" },
-  { type: "investment", label: "New investment — GreenHouse Agro", amount: "+₦1,200,000", date: "Jun 9", icon: "trending-up" as const, color: "#2db56e" },
-  { type: "listing", label: "SME listing fee — Apex Logistics", amount: "+₦150,000", date: "Jun 8", icon: "package" as const, color: "#7c3aed" },
-];
 
 export default function AdminReports() {
   const colors = useColors();
@@ -129,7 +110,7 @@ export default function AdminReports() {
               style={[styles.txRow, i < RECENT_TRANSACTIONS.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.borderLight }]}
             >
               <View style={[styles.txIcon, { backgroundColor: tx.color + "18" }]}>
-                <Feather name={tx.icon} size={14} color={tx.color} />
+                <Feather name={tx.icon as any} size={14} color={tx.color} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.txLabel, { color: colors.foreground }]}>{tx.label}</Text>

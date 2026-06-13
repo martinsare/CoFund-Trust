@@ -6,18 +6,9 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
-import { formatCurrency } from "@/constants/mockData";
+import { MOCK_INVESTORS, formatCurrency } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
 import { router } from "expo-router";
-
-export const MOCK_INVESTORS = [
-  { id: "1", name: "Adebayo Okafor", email: "investor@cofund.africa", country: "Nigeria", kyc: "Tier 2", invested: 2500000, investments: 4, joined: "Jan 2025", status: "active" },
-  { id: "2", name: "Chioma Eze", email: "chioma.eze@gmail.com", country: "Nigeria", kyc: "Tier 1", invested: 850000, investments: 2, joined: "Feb 2025", status: "active" },
-  { id: "3", name: "Kwame Mensah", email: "kwame.m@outlook.com", country: "Ghana", kyc: "None", invested: 0, investments: 0, joined: "Mar 2025", status: "pending_kyc" },
-  { id: "4", name: "Fatima Al-Hassan", email: "fatima.h@proton.me", country: "Nigeria", kyc: "Tier 1", invested: 1200000, investments: 3, joined: "Jan 2025", status: "active" },
-  { id: "5", name: "Emeka Obi", email: "emeka.obi@yahoo.com", country: "Nigeria", kyc: "Tier 2", invested: 5000000, investments: 7, joined: "Nov 2024", status: "active" },
-  { id: "6", name: "Amina Yusuf", email: "aminayusuf@gmail.com", country: "Nigeria", kyc: "None", invested: 0, investments: 0, joined: "Apr 2025", status: "suspended" },
-];
 
 const FILTER_OPTIONS = ["All", "Active", "Pending KYC", "Suspended"];
 
