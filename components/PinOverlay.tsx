@@ -266,11 +266,11 @@ export default function PinOverlay() {
         {!setupSuccess && (
           <View style={styles.keypad}>
             {KEYS.map((key, idx) => {
-              if (key === "") return <View key={idx} style={styles.keyBtn} />;
+              if (key === "") return <View key={`empty-${idx}`} style={styles.keyBtn} />;
 
               if (key === "bio") {
                 return (
-                  <Pressable key="bio" style={styles.keyBtn} onPress={tryBiometrics}>
+                  <Pressable key={`bio-${idx}`} style={styles.keyBtn} onPress={tryBiometrics}>
                     <Feather
                       name={biometricLabel === "Face ID" ? "aperture" : "activity"}
                       size={26}
@@ -283,7 +283,7 @@ export default function PinOverlay() {
 
               if (key === "del") {
                 return (
-                  <Pressable key="del" style={styles.keyBtn} onPress={handleDelete}>
+                  <Pressable key={`del-${idx}`} style={styles.keyBtn} onPress={handleDelete}>
                     <Feather name="delete" size={24} color="rgba(255,255,255,0.7)" />
                   </Pressable>
                 );
@@ -296,7 +296,7 @@ export default function PinOverlay() {
 
               return (
                 <Pressable
-                  key={key}
+                  key={`digit-${key}-${idx}`}
                   style={({ pressed }) => [styles.keyBtn, pressed && styles.keyBtnPressed]}
                   onPress={() => handleDigit(key)}
                 >
