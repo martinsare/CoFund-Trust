@@ -1,13 +1,14 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
-import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
 import { MOCK_INVESTORS, formatCurrency } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
+import { SoundManager } from "@/utils/soundManager";
 import { router } from "expo-router";
 
 const FILTER_OPTIONS = ["All", "Active", "Pending KYC", "Suspended"];
@@ -34,8 +35,23 @@ export default function AdminInvestors() {
   const activeCount = investors.filter((u) => u.status === "active").length;
 
   const reviewInvestor = (id: string) => {
-    setInvestors((prev) => prev.map((u) => (u.id === id ? { ...u, status: "active", kyc: "Tier 1" } : u)));
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    const inv = investors.find((u) => u.id === id);
+    if (!inv) return;
+    Alert.alert(
+      "Approve KYC",
+      `Approve ${inv.name} and set KYC to Tier 1?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Approve",
+          onPress: () => {
+            setInvestors((prev) => prev.map((u) => (u.id === id ? { ...u, status: "active", kyc: "Tier 1" } : u)));
+            SoundManager.success();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          },
+        },
+      ]
+    );
   };
 
   return (

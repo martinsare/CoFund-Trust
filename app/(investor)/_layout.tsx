@@ -32,6 +32,7 @@ function NativeTabLayout() {
         <Icon sf={{ default: "person.circle", selected: "person.circle.fill" }} />
         <Label>Profile</Label>
       </NativeTabs.Trigger>
+      <Tabs.Screen name="dispute" options={{ href: null }} />
     </NativeTabs>
   );
 }
