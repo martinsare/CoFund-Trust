@@ -1,0 +1,14 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "JlVt93B1P4Y5KvhqkdN_F"
+uri = "file://artifacts/cofund/assets/images/icon.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "r6o2N785ujERoRd0X7IgB"
+uri = "file://artifacts/cofund/assets/images/splash-bg.png"
+type = "image"
+title = "generated_image"
