@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
@@ -38,6 +39,30 @@ export default function CreateFundingRequest() {
   const [purpose, setPurpose] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
+  const [uploads, setUploads] = useState<Record<string, string>>({});
+
+  const pickDocument = async (label: string) => {
+    if (Platform.OS === "web") {
+      Alert.alert("Not supported", "File upload requires the mobile app.");
+      return;
+    }
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission required", "Please allow access to your photo library to upload documents.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: false,
+      quality: 0.85,
+    });
+    if (!result.canceled && result.assets.length > 0) {
+      const asset = result.assets[0];
+      const name = asset.fileName ?? asset.uri.split("/").pop() ?? "file";
+      setUploads((prev) => ({ ...prev, [label]: name }));
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!title || !industry || !investmentType || !fundingAmount || !purpose) {
@@ -103,21 +128,33 @@ export default function CreateFundingRequest() {
             { label: "Bank Statement (6 months)", icon: "credit-card", required: true },
             { label: "Government ID", icon: "user", required: true },
             { label: "Financial Statements", icon: "bar-chart-2", required: false },
-          ].map((d) => (
-            <Pressable key={d.label} style={[styles.docRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
-              <View style={[styles.docIcon, { backgroundColor: colors.primaryXLight }]}>
-                <Feather name={d.icon as any} size={16} color={colors.primary} />
+          ].map((d) => {
+            const uploaded = uploads[d.label];
+            return (
+              <View key={d.label} style={[styles.docRow, { borderColor: uploaded ? colors.accent : colors.border, backgroundColor: colors.card }]}>
+                <View style={[styles.docIcon, { backgroundColor: uploaded ? colors.accentLight : colors.primaryXLight }]}>
+                  <Feather name={uploaded ? "check" : d.icon as any} size={16} color={uploaded ? colors.accent : colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.docLabel, { color: colors.foreground }]}>{d.label}</Text>
+                  {uploaded ? (
+                    <Text style={[styles.docSub, { color: colors.accent }]} numberOfLines={1}>{uploaded}</Text>
+                  ) : (
+                    <Text style={[styles.docSub, { color: colors.mutedForeground }]}>{d.required ? "Required" : "Optional"}</Text>
+                  )}
+                </View>
+                <Pressable
+                  onPress={() => pickDocument(d.label)}
+                  style={[styles.uploadBtn, { backgroundColor: uploaded ? colors.accentLight : colors.primaryXLight }]}
+                >
+                  <Feather name={uploaded ? "refresh-cw" : "upload"} size={14} color={uploaded ? colors.accent : colors.primary} />
+                  <Text style={[styles.uploadText, { color: uploaded ? colors.accent : colors.primary }]}>
+                    {uploaded ? "Replace" : "Upload"}
+                  </Text>
+                </Pressable>
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.docLabel, { color: colors.foreground }]}>{d.label}</Text>
-                <Text style={[styles.docSub, { color: colors.mutedForeground }]}>{d.required ? "Required" : "Optional"}</Text>
-              </View>
-              <Pressable style={[styles.uploadBtn, { backgroundColor: colors.primaryXLight }]}>
-                <Feather name="upload" size={14} color={colors.primary} />
-                <Text style={[styles.uploadText, { color: colors.primary }]}>Upload</Text>
-              </Pressable>
-            </Pressable>
-          ))}
+            );
+          })}
         </Section>
 
         <Pressable onPress={handleSubmit} disabled={loading}>
