@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
-import { Alert, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -63,9 +63,16 @@ export default function InvestorProfile() {
       contentContainerStyle={[styles.content, { paddingTop: topPad + 8, paddingBottom: bottomPad + 100 }]}
       showsVerticalScrollIndicator={false}
     >
-      <Animated.Text entering={FadeInDown.delay(0).duration(500)} style={[styles.title, { color: colors.foreground }]}>
-        Profile
-      </Animated.Text>
+      <Animated.View entering={FadeInDown.delay(0).duration(500)} style={styles.titleRow}>
+        <Text style={[styles.title, { color: colors.foreground }]}>Profile</Text>
+        <PressableScale
+          style={[styles.editBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+          onPress={() => router.push("/investor/edit-profile" as any)}
+        >
+          <Feather name="edit-2" size={14} color={colors.foreground} />
+          <Text style={[styles.editBtnText, { color: colors.foreground }]}>Edit</Text>
+        </PressableScale>
+      </Animated.View>
 
       <Animated.View entering={FadeInUp.delay(80).duration(500)}>
         <LinearGradient
@@ -74,16 +81,29 @@ export default function InvestorProfile() {
           end={{ x: 1, y: 1 }}
           style={styles.profileCard}
         >
-          <View style={styles.avatarWrap}>
-            <View style={styles.avatarLarge}>
-              <Text style={styles.avatarText}>{initials}</Text>
+          <PressableScale onPress={() => router.push("/investor/edit-profile" as any)} style={styles.avatarWrap}>
+            {user?.avatar ? (
+              <Image source={{ uri: user.avatar }} style={styles.avatarImg} />
+            ) : (
+              <View style={styles.avatarLarge}>
+                <Text style={styles.avatarText}>{initials}</Text>
+              </View>
+            )}
+            <View style={styles.avatarEditBadge}>
+              <Feather name="camera" size={10} color="#fff" />
             </View>
             <View style={styles.verifiedBadge}>
               <Feather name="check" size={10} color="#fff" />
             </View>
-          </View>
+          </PressableScale>
+
           <Text style={styles.profileName}>{user?.name}</Text>
           <Text style={styles.profileEmail}>{user?.email}</Text>
+
+          {user?.bio ? (
+            <Text style={styles.profileBio}>{user.bio}</Text>
+          ) : null}
+
           <View style={styles.profileStats}>
             <View style={styles.profileStat}>
               <Text style={styles.profileStatVal}>{formatCurrency(totalInvested)}</Text>
@@ -159,7 +179,13 @@ export default function InvestorProfile() {
   );
 }
 
-function InfoRow({ icon, label, value, colors, last }: { icon: React.ComponentProps<typeof Feather>["name"]; label: string; value: string; colors: ReturnType<typeof import("@/hooks/useColors").useColors>; last?: boolean }) {
+function InfoRow({ icon, label, value, colors, last }: {
+  icon: React.ComponentProps<typeof Feather>["name"];
+  label: string;
+  value: string;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+  last?: boolean;
+}) {
   return (
     <View style={[styles.infoRow, !last && { borderBottomWidth: 1, borderBottomColor: colors.borderLight }]}>
       <Feather name={icon} size={15} color={colors.mutedForeground} />
@@ -172,15 +198,32 @@ function InfoRow({ icon, label, value, colors, last }: { icon: React.ComponentPr
 const styles = StyleSheet.create({
   root: { flex: 1 },
   content: { paddingHorizontal: 20, gap: 14 },
-  title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold", marginBottom: 4 },
+  titleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 4 },
+  title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold" },
+  editBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, borderWidth: 1 },
+  editBtnText: { fontSize: 13, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   profileCard: { borderRadius: 18, padding: 24, alignItems: "center", gap: 4 },
   avatarWrap: { position: "relative", marginBottom: 4 },
-  avatarLarge: { width: 72, height: 72, borderRadius: 22, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" },
-  avatarText: { color: "#fff", fontSize: 26, fontWeight: "800", fontFamily: "Inter_700Bold" },
-  verifiedBadge: { position: "absolute", bottom: -2, right: -2, width: 20, height: 20, borderRadius: 10, backgroundColor: "#2db56e", alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#1a5e9a" },
+  avatarImg: { width: 80, height: 80, borderRadius: 24, borderWidth: 3, borderColor: "rgba(255,255,255,0.3)" },
+  avatarLarge: { width: 80, height: 80, borderRadius: 24, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" },
+  avatarText: { color: "#fff", fontSize: 28, fontWeight: "800", fontFamily: "Inter_700Bold" },
+  avatarEditBadge: {
+    position: "absolute", top: -4, right: -4,
+    width: 24, height: 24, borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.25)",
+    alignItems: "center", justifyContent: "center",
+  },
+  verifiedBadge: {
+    position: "absolute", bottom: -2, right: -2,
+    width: 20, height: 20, borderRadius: 10,
+    backgroundColor: "#2db56e",
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 2, borderColor: "#1a5e9a",
+  },
   profileName: { color: "#fff", fontSize: 20, fontWeight: "700", marginTop: 6, fontFamily: "Inter_700Bold" },
   profileEmail: { color: "rgba(255,255,255,0.65)", fontSize: 13, fontFamily: "Inter_400Regular" },
-  profileStats: { flexDirection: "row", alignItems: "center", marginTop: 16, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 12, paddingVertical: 12, paddingHorizontal: 8 },
+  profileBio: { color: "rgba(255,255,255,0.75)", fontSize: 12, fontFamily: "Inter_400Regular", textAlign: "center", marginTop: 6, lineHeight: 18, paddingHorizontal: 8 },
+  profileStats: { flexDirection: "row", alignItems: "center", marginTop: 16, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 12, paddingVertical: 12, paddingHorizontal: 8, width: "100%" },
   profileStat: { flex: 1, alignItems: "center" },
   profileStatVal: { color: "#fff", fontSize: 17, fontWeight: "800", fontFamily: "Inter_700Bold" },
   profileStatLabel: { color: "rgba(255,255,255,0.6)", fontSize: 11, marginTop: 2, fontFamily: "Inter_400Regular" },

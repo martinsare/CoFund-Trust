@@ -12,6 +12,8 @@ export interface User {
   role: UserRole;
   walletBalance: number;
   businessName?: string;
+  avatar?: string;
+  bio?: string;
 }
 
 interface RegisterData {
@@ -31,6 +33,7 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   updateWallet: (amount: number) => Promise<void>;
+  updateProfile: (data: Partial<Pick<User, "name" | "phone" | "country" | "bio" | "avatar">>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -109,14 +112,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateWallet = async (amount: number) => {
     if (!user) return;
-    const updated = { ...user, walletBalance: user.walletBalance + amount };
-    await persist(updated);
+    await persist({ ...user, walletBalance: user.walletBalance + amount });
+  };
+
+  const updateProfile = async (data: Partial<Pick<User, "name" | "phone" | "country" | "bio" | "avatar">>) => {
+    if (!user) return;
+    await persist({ ...user, ...data });
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, isLoading, login, register, logout, updateWallet }}
-    >
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateWallet, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );
