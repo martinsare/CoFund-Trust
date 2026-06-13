@@ -87,7 +87,7 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
 
   const currentBusiness = useMemo(() => {
     if (!user || user.role !== "business") return null;
-    return businesses.find((business) => business.name === user.businessName) ?? businesses[0] ?? null;
+    return businesses.find((business) => business.name === user.businessName) ?? null;
   }, [businesses, user]);
 
   const createBusiness = (draft: BusinessDraft) => {

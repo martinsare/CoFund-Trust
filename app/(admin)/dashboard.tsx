@@ -208,7 +208,7 @@ export default function AdminDashboard() {
           {[
             { icon: "shield" as const, label: "KYB Review", sub: "Business approvals", color: "#2db56e", onPress: () => router.push("/(admin)/businesses") },
             { icon: "users" as const, label: "Users", sub: "Investor management", color: "#1a5e9a", onPress: () => router.push("/(admin)/investors") },
-            { icon: "plus-circle" as const, label: "Create Business", sub: "New listing intake", color: "#c9860d", onPress: () => router.push("/(admin)/create-business") },
+            { icon: "alert-circle" as const, label: "Disputes", sub: "Active concerns", color: "#e03e3e", onPress: () => router.push("/(admin)/disputes") },
             { icon: "settings" as const, label: "Platform", sub: "Settings & rules", color: "#7c3aed", onPress: () => router.push("/(admin)/settings") },
           ].map((q) => (
             <PressableScale

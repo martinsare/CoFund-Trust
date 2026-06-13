@@ -90,13 +90,13 @@ export default function AdminCreateBusiness() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={[styles.title, { color: colors.foreground }]}>Create Business</Text>
-        <Text style={[styles.sub, { color: colors.mutedForeground }]}>Create a listing on behalf of a founder or business partner.</Text>
+        <Text style={[styles.title, { color: colors.foreground }]}>Manual Intake</Text>
+        <Text style={[styles.sub, { color: colors.mutedForeground }]}>Admin-assisted onboarding for special cases (e.g. enterprise partners or migrated accounts).</Text>
 
-        <View style={[styles.notice, { backgroundColor: colors.primaryXLight, borderColor: colors.primaryLight }]}>
-          <Feather name="info" size={14} color={colors.primary} />
-          <Text style={[styles.noticeText, { color: colors.primary }]}>
-            Fill the operational details you know now. Anything truly backend-dependent can stay as a placeholder for later onboarding.
+        <View style={[styles.notice, { backgroundColor: "#fef3dc", borderColor: "#e08c1a" }]}>
+          <Feather name="info" size={14} color="#9a5800" />
+          <Text style={[styles.noticeText, { color: "#9a5800" }]}>
+            Most businesses register themselves via "Raise Capital" on the app. Only use this for admin-assisted onboarding where the business cannot self-register.
           </Text>
         </View>
 

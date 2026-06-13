@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
 import { useAuth } from "@/context/AuthContext";
-import { BUSINESSES, BrfrStatus, KYB_STAGES, formatCurrency } from "@/constants/mockData";
+import { BrfrStatus, KYB_STAGES, formatCurrency } from "@/constants/mockData";
 import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -27,10 +27,27 @@ export default function BusinessDashboard() {
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 
-  const business = currentBusiness ?? BUSINESSES[0];
-  const progress  = business.amountRaised / business.fundingGoal;
-  const remaining = business.fundingGoal - business.amountRaised;
+  const business = currentBusiness;
   const initials  = (user?.name ?? "B").split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const isPending = !business || business.verificationStatus === "pending";
+
+  if (!business) {
+    return (
+      <View style={[styles.root, { backgroundColor: colors.background, alignItems: "center", justifyContent: "center", padding: 32 }]}>
+        <View style={{ paddingTop: Platform.OS === "web" ? 67 : insets.top }} />
+        <View style={[{ width: 72, height: 72, borderRadius: 20, backgroundColor: "#fef3dc", alignItems: "center", justifyContent: "center", marginBottom: 20 }]}>
+          <Feather name="clock" size={34} color="#e08c1a" />
+        </View>
+        <Text style={[styles.name, { color: colors.foreground, textAlign: "center", marginBottom: 8 }]}>Application Submitted</Text>
+        <Text style={[{ fontSize: 14, color: colors.mutedForeground, textAlign: "center", lineHeight: 22, maxWidth: 300 }]}>
+          Your business application is being set up. This usually takes just a moment. If this persists, please contact support.
+        </Text>
+      </View>
+    );
+  }
+
+  const progress  = business.fundingGoal > 0 ? business.amountRaised / business.fundingGoal : 0;
+  const remaining = business.fundingGoal - business.amountRaised;
   const brfr      = BRFR_CONFIG[business.brfrStatus];
   const kybStageLabel = KYB_STAGES[business.kybStage - 1];
   const openDisputes = disputes.filter((dispute) => dispute.businessId === business.id && (dispute.status === "open" || dispute.status === "escalated")).length;
@@ -50,6 +67,18 @@ export default function BusinessDashboard() {
           <Text style={styles.avatarText}>{initials}</Text>
         </View>
       </Animated.View>
+
+      {isPending && (
+        <Animated.View entering={FadeInDown.delay(60).duration(500)} style={[styles.pendingBanner, { backgroundColor: "#fef3dc", borderColor: "#e08c1a" }]}>
+          <Feather name="clock" size={16} color="#9a5800" />
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.pendingTitle, { color: "#9a5800" }]}>Application Under Review</Text>
+            <Text style={[styles.pendingSub, { color: "#9a5800" }]}>
+              Your KYB verification is in progress (Stage {business.kybStage}/5). CoFund typically completes reviews within 3–5 business days. You'll be notified once approved.
+            </Text>
+          </View>
+        </Animated.View>
+      )}
 
       <Animated.View entering={FadeInUp.delay(100).duration(500)}>
         <LinearGradient
@@ -259,9 +288,12 @@ export default function BusinessDashboard() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   content: { paddingHorizontal: 20 },
-  navRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 20 },
+  navRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 },
   greeting: { fontSize: 12, fontFamily: "Inter_400Regular" },
   name: { fontSize: 18, fontWeight: "800", letterSpacing: -0.5, fontFamily: "Inter_700Bold" },
+  pendingBanner: { flexDirection: "row", alignItems: "flex-start", gap: 12, borderRadius: 12, borderWidth: 1, padding: 14, marginBottom: 14 },
+  pendingTitle: { fontSize: 13, fontWeight: "700", fontFamily: "Inter_700Bold", marginBottom: 3 },
+  pendingSub: { fontSize: 12, lineHeight: 17, fontFamily: "Inter_400Regular" },
   avatar: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   avatarText: { color: "#fff", fontWeight: "700", fontSize: 15, fontFamily: "Inter_700Bold" },
   fundingCard: { borderRadius: 18, padding: 20, marginBottom: 14, gap: 14 },

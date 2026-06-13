@@ -53,17 +53,22 @@ export default function AdminBusinesses() {
       showsVerticalScrollIndicator={false}
     >
       <Animated.View entering={FadeInDown.delay(0).duration(500)} style={styles.header}>
-        <Text style={[styles.title, { color: colors.foreground }]}>Businesses</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.title, { color: colors.foreground }]}>Businesses</Text>
+          <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+            Review applications, manage KYB approvals & monitor risk
+          </Text>
+        </View>
         <View style={styles.headerActions}>
           <View style={[styles.totalBadge, { backgroundColor: "#f3effe" }]}>
-            <Text style={[styles.totalText, { color: "#7c3aed" }]}>{businesses.length} total</Text>
+            <Text style={[styles.totalText, { color: "#7c3aed" }]}>{businesses.length} listed</Text>
           </View>
           <PressableScale
-            style={[styles.addBtn, { backgroundColor: "#7c3aed", borderColor: "#7c3aed" }]}
+            style={[styles.addBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
             onPress={() => router.push("/(admin)/create-business")}
           >
-            <Feather name="plus" size={14} color="#fff" />
-            <Text style={styles.addBtnText}>Add Business</Text>
+            <Feather name="user-plus" size={14} color={colors.mutedForeground} />
+            <Text style={[styles.addBtnText, { color: colors.mutedForeground }]}>Manual Intake</Text>
           </PressableScale>
         </View>
       </Animated.View>
@@ -276,8 +281,9 @@ function VerBadge({ status, colors }: { status: string; colors: ReturnType<typeo
 const styles = StyleSheet.create({
   root: { flex: 1 },
   content: { paddingHorizontal: 20 },
-  header: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 },
-  title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold", flex: 1 },
+  header: { flexDirection: "row", alignItems: "flex-start", gap: 10, marginBottom: 16 },
+  title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold" },
+  subtitle: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 2 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 8 },
   totalBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 100 },
   totalText: { fontSize: 12, fontWeight: "700", fontFamily: "Inter_700Bold" },

@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
 import { UserRole, useAuth } from "@/context/AuthContext";
+import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
 
 const COUNTRIES = ["Nigeria", "Ghana", "Kenya", "South Africa", "Ethiopia", "Rwanda", "Uganda", "Tanzania", "Cameroon", "Senegal"];
@@ -37,6 +38,7 @@ const FUND_SOURCES = ["Salary / Employment", "Business income", "Inheritance", "
 const BUSINESS_TYPES = ["Sole Proprietorship", "Partnership", "Limited Liability (LLC)", "NGO / Non-profit"];
 const YEARS_OPERATING = ["Less than 1 year", "1–2 years", "3–5 years", "5+ years"];
 const ANNUAL_REVENUE = ["Below ₦1M", "₦1M – ₦5M", "₦5M – ₦20M", "Above ₦20M"];
+const INDUSTRIES = ["Agriculture", "Healthcare", "Logistics", "Technology", "Hospitality", "Real Estate", "Manufacturing", "Retail", "Energy", "Education", "Finance", "Other"];
 
 const TOTAL_STEPS = 5;
 
@@ -44,6 +46,7 @@ export default function Register() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { register } = useAuth();
+  const { createBusiness } = useSystemData();
   const scrollRef = useRef<ScrollView>(null);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -83,6 +86,7 @@ export default function Register() {
   const [businessName, setBusinessName] = useState("");
   const [cacNumber, setCacNumber] = useState("");
   const [businessType, setBusinessType] = useState("");
+  const [businessIndustry, setBusinessIndustry] = useState("");
   const [yearsOperating, setYearsOperating] = useState("");
   const [annualRevenue, setAnnualRevenue] = useState("");
 
@@ -154,6 +158,33 @@ export default function Register() {
         referralCode: referralCode || undefined,
         agreedToTerms: true,
       });
+
+      if (role === "business" && businessName) {
+        const yrs = yearsOperating === "Less than 1 year" ? 0
+          : yearsOperating === "1–2 years" ? 1
+          : yearsOperating === "3–5 years" ? 3 : 5;
+        createBusiness({
+          name: businessName,
+          industry: businessIndustry || businessType || "General",
+          location: country,
+          sector: businessIndustry || businessType || "General",
+          description: `${businessType || "Business"} operating for ${yearsOperating || "some time"}. Application pending KYB review.`,
+          fundingGoal: 5000000,
+          minInvestment: 50000,
+          expectedRoi: "TBD",
+          duration: "TBD",
+          investmentType: "TBD",
+          yearsOperating: yrs,
+          revenueRange: annualRevenue || "Pending",
+          verificationStatus: "pending",
+          kybStage: 1,
+          brfrStatus: "green",
+          trustScore: 50,
+          riskLevel: "low",
+          daysLeft: 0,
+        });
+      }
+
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       if (role === "investor") router.replace("/(investor)/dashboard");
       else router.replace("/(business)/dashboard");
@@ -468,6 +499,19 @@ export default function Register() {
                     {businessType === t && <View style={[styles.radioInner, { backgroundColor: colors.primary }]} />}
                   </View>
                 </PressableScale>
+              ))}
+            </View>
+
+            <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>Industry / Sector</Text>
+            <View style={styles.pillGrid}>
+              {INDUSTRIES.map((ind) => (
+                <Pressable
+                  key={ind}
+                  style={[styles.pill, { borderColor: businessIndustry === ind ? colors.primary : colors.border, backgroundColor: businessIndustry === ind ? colors.primaryXLight : colors.card }]}
+                  onPress={() => { setBusinessIndustry(ind); Haptics.selectionAsync(); }}
+                >
+                  <Text style={[styles.pillText, { color: businessIndustry === ind ? colors.primary : colors.foreground }]}>{ind}</Text>
+                </Pressable>
               ))}
             </View>
 
