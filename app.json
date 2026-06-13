@@ -9,8 +9,6 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-bg.png",
-      "resizeMode": "cover",
       "backgroundColor": "#0e3d6e"
     },
     "ios": {
@@ -48,8 +46,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "YOUR_EAS_PROJECT_ID"
+        "projectId": "81a6ce31-26d5-4a99-be1c-17700038ec9b"
       }
-    }
+    },
+    "owner": "aremartins"
   }
 }
