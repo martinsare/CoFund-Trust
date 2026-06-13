@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
-import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -11,6 +11,8 @@ import { useAuth } from "@/context/AuthContext";
 import { BrfrStatus, KYB_STAGES, formatCurrency } from "@/constants/mockData";
 import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
+
+const GRID_CARD_W = (Dimensions.get("window").width - 40 - 10) / 2; // 40 = h-padding, 10 = gap
 
 const BRFR_CONFIG: Record<BrfrStatus, { label: string; color: string; bg: string; dot: string; note: string }> = {
   green:  { label: "Healthy",   color: "#1a7a4a", bg: "#d6f5e7", dot: "#2db56e", note: "Business operating normally. No concerns flagged." },
@@ -184,7 +186,7 @@ export default function BusinessDashboard() {
           { icon: "clock" as const,       label: "Duration",          value: business.duration,                 color: colors.gold },
           { icon: "bar-chart-2" as const, label: "Revenue Range",     value: business.revenueRange,             color: colors.purple },
         ].map((s, i) => (
-          <FadeSlideIn key={s.label} delay={280 + i * 60} style={{ width: "47%" }}>
+          <FadeSlideIn key={s.label} delay={280 + i * 60} style={{ width: GRID_CARD_W }}>
             <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <View style={[styles.statIcon, { backgroundColor: s.color + "18" }]}>
                 <Feather name={s.icon} size={14} color={s.color} />
@@ -347,7 +349,7 @@ const styles = StyleSheet.create({
   milestoneAmt: { fontSize: 11, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   milestoneEscrow: { fontSize: 11, fontFamily: "Inter_400Regular" },
   actionsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 16 },
-  actionCard: { width: "47%", borderRadius: 12, borderWidth: 1, padding: 14, gap: 6 },
+  actionCard: { width: GRID_CARD_W, borderRadius: 12, borderWidth: 1, padding: 14, gap: 6 },
   actionIcon: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   actionLabel: { fontSize: 14, fontWeight: "700", fontFamily: "Inter_700Bold" },
   actionSub: { fontSize: 11, fontFamily: "Inter_400Regular" },
