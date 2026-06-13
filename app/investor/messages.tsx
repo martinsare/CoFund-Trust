@@ -44,7 +44,7 @@ export default function Messages() {
         keyExtractor={(t) => t.id}
         renderItem={({ item, index }) => (
           <Animated.View entering={FadeInDown.delay(80 + index * 80).duration(400)}>
-            <ThreadRow thread={item} colors={colors} onPress={() => {}} />
+            <ThreadRow thread={item} colors={colors} onPress={() => router.push(`/investor/thread/${item.id}` as any)} />
           </Animated.View>
         )}
         contentContainerStyle={[styles.list, { paddingBottom: bottomPad + 40 }]}

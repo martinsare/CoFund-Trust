@@ -89,68 +89,64 @@ export default function CoFundPro() {
 
       <Animated.View entering={FadeInUp.delay(340).duration(500)}>
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Choose a plan</Text>
-        <View style={styles.plans}>
-          {PLANS.map((plan, index) => {
+        <View style={[styles.plansCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          {PLANS.map((plan, i) => {
             const isSelected = selectedPlan === plan.id;
             return (
-              <Animated.View
+              <PressableScale
                 key={plan.id}
-                entering={FadeInDown.delay(340 + index * 60).duration(400)}
+                style={[
+                  styles.planRow,
+                  i < PLANS.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.borderLight },
+                  isSelected && { backgroundColor: "#7c3aed0d" },
+                ]}
+                onPress={() => setSelectedPlan(plan.id)}
               >
-                <PressableScale
-                  style={[
-                    styles.planCard,
-                    {
-                      backgroundColor: isSelected ? "#7c3aed" : colors.card,
-                      borderColor: isSelected ? "#7c3aed" : plan.popular ? "#7c3aed40" : colors.border,
-                      borderWidth: isSelected ? 2 : plan.popular ? 1.5 : 1,
-                    },
-                  ]}
-                  onPress={() => setSelectedPlan(plan.id)}
-                >
-                  <View style={styles.planLeft}>
-                    <View style={styles.planLabelRow}>
-                      <Text style={[styles.planLabel, { color: isSelected ? "rgba(255,255,255,0.85)" : colors.foreground }]}>
-                        {plan.label}
-                      </Text>
-                      {plan.popular && (
-                        <View style={[styles.popularBadge, { backgroundColor: isSelected ? "rgba(255,255,255,0.2)" : "#fbbf2420" }]}>
-                          <Text style={[styles.popularText, { color: isSelected ? "#fff" : "#fbbf24" }]}>Popular</Text>
-                        </View>
-                      )}
-                    </View>
-                    <Text style={[styles.planPeriod, { color: isSelected ? "rgba(255,255,255,0.6)" : colors.mutedForeground }]}>
-                      Billed{plan.period}
-                    </Text>
-                  </View>
+                {/* Radio indicator */}
+                <View style={[
+                  styles.radio,
+                  { borderColor: isSelected ? "#7c3aed" : colors.border },
+                ]}>
+                  {isSelected && <View style={styles.radioFill} />}
+                </View>
 
-                  <View style={styles.planRight}>
-                    {plan.saving && (
-                      <View style={[styles.savingBadge, { backgroundColor: isSelected ? "rgba(255,255,255,0.15)" : colors.accentLight }]}>
-                        <Text style={[styles.savingText, { color: isSelected ? "#fff" : colors.accentDark }]}>{plan.saving}</Text>
+                {/* Label + period */}
+                <View style={styles.planMid}>
+                  <View style={styles.planNameRow}>
+                    <Text style={[styles.planName, { color: isSelected ? "#7c3aed" : colors.foreground }]}>
+                      {plan.label}
+                    </Text>
+                    {plan.popular && (
+                      <View style={styles.popularBadge}>
+                        <Text style={styles.popularText}>Popular</Text>
                       </View>
                     )}
-                    <View style={styles.planPriceRow}>
-                      <Text style={[styles.planCurrency, { color: isSelected ? "rgba(255,255,255,0.75)" : colors.mutedForeground }]}>₦</Text>
-                      <Text style={[styles.planPrice, { color: isSelected ? "#fff" : colors.foreground }]}>
-                        {(plan.price / 1000).toFixed(0)}K
+                  </View>
+                  <Text style={[styles.planPeriod, { color: colors.mutedForeground }]}>
+                    Billed{plan.period}
+                  </Text>
+                </View>
+
+                {/* Price + saving */}
+                <View style={styles.planPriceCol}>
+                  {plan.saving && (
+                    <View style={[styles.savingBadge, { backgroundColor: isSelected ? "#7c3aed18" : colors.accentLight }]}>
+                      <Text style={[styles.savingText, { color: isSelected ? "#7c3aed" : colors.accentDark }]}>
+                        {plan.saving}
                       </Text>
                     </View>
-                  </View>
-
-                  {isSelected && (
-                    <View style={styles.checkCircle}>
-                      <Feather name="check" size={12} color="#7c3aed" />
-                    </View>
                   )}
-                </PressableScale>
-              </Animated.View>
+                  <Text style={[styles.planPrice, { color: isSelected ? "#7c3aed" : colors.foreground }]}>
+                    ₦{(plan.price / 1000).toFixed(0)}K
+                  </Text>
+                </View>
+              </PressableScale>
             );
           })}
         </View>
       </Animated.View>
 
-      <Animated.View entering={FadeInUp.delay(520).duration(500)}>
+      <Animated.View entering={FadeInUp.delay(460).duration(500)}>
         <PressableScale style={styles.subscribeBtn}>
           <LinearGradient
             colors={["#7c3aed", "#1a5e9a"]}
@@ -189,28 +185,39 @@ const styles = StyleSheet.create({
   benefitIcon: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   benefitLabel: { fontSize: 14, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   benefitDesc: { fontSize: 12, marginTop: 1, fontFamily: "Inter_400Regular" },
-  plans: { gap: 10 },
-  planCard: {
-    borderRadius: 14,
-    padding: 16,
+  plansCard: { borderRadius: 14, borderWidth: 1, overflow: "hidden" },
+  planRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    borderWidth: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    gap: 14,
   },
-  planLeft: { flex: 1, gap: 3 },
-  planLabelRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  planLabel: { fontSize: 15, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  radio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  radioFill: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#7c3aed",
+  },
+  planMid: { flex: 1, gap: 2 },
+  planNameRow: { flexDirection: "row", alignItems: "center", gap: 7, flexWrap: "nowrap" },
+  planName: { fontSize: 15, fontWeight: "700", fontFamily: "Inter_700Bold" },
   planPeriod: { fontSize: 12, fontFamily: "Inter_400Regular" },
-  planRight: { alignItems: "flex-end", gap: 4 },
-  planPriceRow: { flexDirection: "row", alignItems: "flex-end", gap: 1 },
-  planCurrency: { fontSize: 13, fontFamily: "Inter_500Medium", marginBottom: 2 },
-  planPrice: { fontSize: 24, fontWeight: "800", fontFamily: "Inter_700Bold", lineHeight: 28 },
-  popularBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 100 },
-  popularText: { fontSize: 10, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  planPriceCol: { alignItems: "flex-end", gap: 4, flexShrink: 0 },
+  planPrice: { fontSize: 20, fontWeight: "800", fontFamily: "Inter_700Bold" },
+  popularBadge: { backgroundColor: "#fbbf2420", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 100 },
+  popularText: { fontSize: 10, fontWeight: "700", fontFamily: "Inter_700Bold", color: "#fbbf24" },
   savingBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 100 },
   savingText: { fontSize: 10, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
-  checkCircle: { width: 20, height: 20, borderRadius: 10, backgroundColor: "#fff", alignItems: "center", justifyContent: "center", marginLeft: 10 },
   subscribeBtn: { borderRadius: 14, overflow: "hidden" },
   subscribeBtnInner: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 16 },
   subscribeBtnText: { color: "#fff", fontSize: 16, fontWeight: "700", fontFamily: "Inter_700Bold" },

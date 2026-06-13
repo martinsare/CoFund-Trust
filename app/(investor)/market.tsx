@@ -1,17 +1,9 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, Platform, StyleSheet, Text, View } from "react-native";
-import Animated, {
-  FadeInDown,
-  useAnimatedProps,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
-} from "react-native-reanimated";
+import Animated, { FadeInDown, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Path, Svg } from "react-native-svg";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
 import { MARKET_LISTINGS, MarketListing, formatCurrency } from "@/constants/mockData";
@@ -26,122 +18,103 @@ const FILTERS: { id: MarketFilter; label: string }[] = [
   { id: "discount", label: "Discounted" },
 ];
 
-const CHART_W = 280;
-const CHART_H = 64;
-const PADDING = 8;
+function PremiumBar({ listing, maxAbs, colors }: {
+  listing: MarketListing;
+  maxAbs: number;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+}) {
+  const val = listing.premiumDiscount;
+  const isDiscount = val < 0;
+  const isPremium = val > 0;
+  const barColor = isDiscount ? colors.accent : isPremium ? colors.amber : colors.mutedForeground;
+  const barWidth = Math.abs(val) / maxAbs;
+  const label = isPremium ? `+${val}%` : `${val}%`;
+  const shortName = listing.businessName.split(" ").slice(0, 2).join(" ");
 
-const BASE_POINTS = [1.2, 0.8, 2.1, 1.6, 3.0, 2.4, 1.8, 3.5, 2.9, 4.2, 3.8, 2.6, 3.1, 4.0];
-
-function buildPath(points: number[]): string {
-  const min = Math.min(...points);
-  const max = Math.max(...points);
-  const range = max - min || 1;
-  const w = CHART_W - PADDING * 2;
-  const h = CHART_H - PADDING * 2;
-
-  const coords = points.map((v, i) => ({
-    x: PADDING + (i / (points.length - 1)) * w,
-    y: PADDING + h - ((v - min) / range) * h,
-  }));
-
-  let d = `M ${coords[0].x} ${coords[0].y}`;
-  for (let i = 1; i < coords.length; i++) {
-    const prev = coords[i - 1];
-    const curr = coords[i];
-    const cpx = (prev.x + curr.x) / 2;
-    d += ` C ${cpx} ${prev.y} ${cpx} ${curr.y} ${curr.x} ${curr.y}`;
-  }
-  return d;
+  return (
+    <View style={barStyles.row}>
+      <Text style={[barStyles.name, { color: colors.mutedForeground }]} numberOfLines={1}>{shortName}</Text>
+      <View style={barStyles.barTrack}>
+        <View style={[barStyles.bar, { width: `${Math.max(barWidth * 100, 4)}%` as any, backgroundColor: barColor }]} />
+      </View>
+      <Text style={[barStyles.pct, { color: barColor, minWidth: 44 }]}>{label === "0%" ? "At par" : label}</Text>
+    </View>
+  );
 }
 
-function buildFill(points: number[]): string {
-  const line = buildPath(points);
-  const lastX = PADDING + (CHART_W - PADDING * 2);
-  return `${line} L ${lastX} ${CHART_H} L ${PADDING} ${CHART_H} Z`;
-}
+const barStyles = StyleSheet.create({
+  row: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
+  name: { fontSize: 11, fontFamily: "Inter_400Regular", width: 80 },
+  barTrack: { flex: 1, height: 6, backgroundColor: "#f0f0f0", borderRadius: 3, overflow: "hidden" },
+  bar: { height: 6, borderRadius: 3 },
+  pct: { fontSize: 11, fontWeight: "700", fontFamily: "Inter_700Bold", textAlign: "right" },
+});
 
-function LiveChart({ colors }: { colors: ReturnType<typeof import("@/hooks/useColors").useColors> }) {
-  const [points, setPoints] = useState(BASE_POINTS);
+function MarketOverviewChart({ colors }: { colors: ReturnType<typeof import("@/hooks/useColors").useColors> }) {
+  const [tick, setTick] = useState(0);
   const pulse = useSharedValue(1);
 
   useEffect(() => {
     pulse.value = withRepeat(
-      withSequence(withTiming(0.4, { duration: 800 }), withTiming(1, { duration: 800 })),
+      withSequence(withTiming(0.3, { duration: 900 }), withTiming(1, { duration: 900 })),
       -1,
       false
     );
-
-    const interval = setInterval(() => {
-      setPoints((prev) => {
-        const last = prev[prev.length - 1];
-        const delta = (Math.random() - 0.44) * 0.8;
-        const next = Math.max(0.2, Math.min(6, last + delta));
-        return [...prev.slice(1), next];
-      });
-    }, 1800);
-    return () => clearInterval(interval);
+    const id = setInterval(() => setTick((t) => t + 1), 3000);
+    return () => clearInterval(id);
   }, []);
 
-  const linePath = buildPath(points);
-  const fillPath = buildFill(points);
-  const lastVal = points[points.length - 1];
-  const prevVal = points[points.length - 2];
-  const isUp = lastVal >= prevVal;
-  const chartColor = isUp ? colors.accent : colors.destructive;
+  const maxAbs = Math.max(...MARKET_LISTINGS.map((m) => Math.abs(m.premiumDiscount)), 1);
+  const discountCount = MARKET_LISTINGS.filter((m) => m.premiumDiscount < 0).length;
+  const premiumCount = MARKET_LISTINGS.filter((m) => m.premiumDiscount > 0).length;
 
   return (
     <View style={[chartStyles.container, { backgroundColor: colors.card, borderColor: colors.border }]}>
-      <View style={chartStyles.topRow}>
+      <View style={chartStyles.header}>
         <View>
-          <Text style={[chartStyles.chartTitle, { color: colors.foreground }]}>Market Activity</Text>
-          <Text style={[chartStyles.chartSub, { color: colors.mutedForeground }]}>Avg premium · live</Text>
-        </View>
-        <View style={chartStyles.liveRight}>
-          <View style={chartStyles.liveRow}>
-            <Animated.View style={[chartStyles.liveDot, { backgroundColor: chartColor }]} />
-            <Text style={[chartStyles.liveText, { color: chartColor }]}>LIVE</Text>
-          </View>
-          <Text style={[chartStyles.currentVal, { color: isUp ? colors.accent : colors.destructive }]}>
-            {isUp ? "+" : ""}{lastVal.toFixed(2)}%
+          <Text style={[chartStyles.title, { color: colors.foreground }]}>Premium / Discount by Listing</Text>
+          <Text style={[chartStyles.sub, { color: colors.mutedForeground }]}>
+            {discountCount} discounted · {premiumCount} at premium
           </Text>
+        </View>
+        <View style={chartStyles.liveRow}>
+          <Animated.View style={[chartStyles.liveDot, { backgroundColor: colors.accent }]} />
+          <Text style={[chartStyles.liveText, { color: colors.accent }]}>LIVE</Text>
         </View>
       </View>
 
-      <Svg width={CHART_W} height={CHART_H} style={{ marginTop: 4 }}>
-        <Path
-          d={fillPath}
-          fill={chartColor + "18"}
-        />
-        <Path
-          d={linePath}
-          stroke={chartColor}
-          strokeWidth={2}
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </Svg>
+      <View style={{ marginTop: 12 }}>
+        {MARKET_LISTINGS.map((listing) => (
+          <PremiumBar key={listing.id} listing={listing} maxAbs={maxAbs} colors={colors} />
+        ))}
+      </View>
 
-      <View style={chartStyles.bottomRow}>
-        <Text style={[chartStyles.timeLabel, { color: colors.mutedForeground }]}>14 days ago</Text>
-        <Text style={[chartStyles.timeLabel, { color: colors.mutedForeground }]}>Now</Text>
+      <View style={[chartStyles.legend, { borderTopColor: colors.borderLight }]}>
+        <View style={chartStyles.legendItem}>
+          <View style={[chartStyles.legendDot, { backgroundColor: colors.accent }]} />
+          <Text style={[chartStyles.legendText, { color: colors.mutedForeground }]}>Discount (below face value)</Text>
+        </View>
+        <View style={chartStyles.legendItem}>
+          <View style={[chartStyles.legendDot, { backgroundColor: colors.amber }]} />
+          <Text style={[chartStyles.legendText, { color: colors.mutedForeground }]}>Premium (above face value)</Text>
+        </View>
       </View>
     </View>
   );
 }
 
 const chartStyles = StyleSheet.create({
-  container: { borderRadius: 14, borderWidth: 1, padding: 14, marginBottom: 14, alignItems: "flex-start" },
-  topRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", width: "100%" },
-  chartTitle: { fontSize: 14, fontWeight: "700", fontFamily: "Inter_700Bold" },
-  chartSub: { fontSize: 11, fontFamily: "Inter_400Regular", marginTop: 1 },
-  liveRight: { alignItems: "flex-end", gap: 2 },
+  container: { borderRadius: 14, borderWidth: 1, padding: 14, marginBottom: 14 },
+  header: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" },
+  title: { fontSize: 14, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  sub: { fontSize: 11, fontFamily: "Inter_400Regular", marginTop: 1 },
   liveRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   liveDot: { width: 7, height: 7, borderRadius: 4 },
   liveText: { fontSize: 10, fontWeight: "700", fontFamily: "Inter_700Bold", letterSpacing: 0.5 },
-  currentVal: { fontSize: 17, fontWeight: "800", fontFamily: "Inter_700Bold" },
-  bottomRow: { flexDirection: "row", justifyContent: "space-between", width: "100%", marginTop: 4 },
-  timeLabel: { fontSize: 10, fontFamily: "Inter_400Regular" },
+  legend: { flexDirection: "row", gap: 16, marginTop: 10, paddingTop: 10, borderTopWidth: 1, flexWrap: "wrap" },
+  legendItem: { flexDirection: "row", alignItems: "center", gap: 5 },
+  legendDot: { width: 8, height: 8, borderRadius: 4 },
+  legendText: { fontSize: 10, fontFamily: "Inter_400Regular" },
 });
 
 export default function Market() {
@@ -191,7 +164,7 @@ export default function Market() {
           ))}
         </View>
 
-        <LiveChart colors={colors} />
+        <MarketOverviewChart colors={colors} />
 
         <View style={styles.filters}>
           {FILTERS.map((f) => (
