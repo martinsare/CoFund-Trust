@@ -143,7 +143,10 @@ export default function AdminBusinesses() {
         const brfr = BRFR_CONFIG[b.brfrStatus];
         return (
           <FadeSlideIn key={b.id} delay={260 + i * 60}>
-            <PressableScale style={[styles.bizCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <PressableScale
+              style={[styles.bizCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+              onPress={() => router.push(`/(admin)/business-detail/${b.id}` as any)}
+            >
               <View style={styles.bizTop}>
                 <View style={[styles.bizAvatar, { backgroundColor: brfr.dot }]}>
                   <Text style={styles.bizAvatarText}>{b.name.slice(0, 2).toUpperCase()}</Text>
