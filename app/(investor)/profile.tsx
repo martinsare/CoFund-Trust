@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   infoRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 13, gap: 10 },
   infoLabel: { fontSize: 13, flex: 1, fontFamily: "Inter_400Regular" },
   infoValue: { fontSize: 13, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
-  sectionTitle: { fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.8, fontFamily: "Inter_600SemiBold", marginBottom: -4 },
+  sectionTitle: { fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.8, fontFamily: "Inter_600SemiBold", marginBottom: 4 },
   menuCard: { borderRadius: 14, borderWidth: 1, overflow: "hidden" },
   menuItem: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 14, gap: 12 },
   menuIcon: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },

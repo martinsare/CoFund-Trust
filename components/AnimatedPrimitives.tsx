@@ -12,7 +12,7 @@ import Animated, {
 export function FadeSlideIn({
   children,
   delay = 0,
-  from = "down",
+  from = "up",
   style,
 }: {
   children: React.ReactNode;
@@ -21,9 +21,9 @@ export function FadeSlideIn({
   style?: StyleProp<ViewStyle>;
 }) {
   const entering =
-    from === "up"
-      ? FadeInUp.delay(delay).duration(500)
-      : FadeInDown.delay(delay).duration(500);
+    from === "down"
+      ? FadeInDown.delay(delay).duration(500)
+      : FadeInUp.delay(delay).duration(500);
   return (
     <Animated.View entering={entering} style={style}>
       {children}
