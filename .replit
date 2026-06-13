@@ -12,6 +12,10 @@ author = "agent"
 task = "workflow.run"
 args = "Start application"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Tunnel"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -21,8 +25,19 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "REACT_NATIVE_PACKAGER_HOSTNAME=c9ce167e-415e-44b4-91b0-cfbd16b4811d-00-1orfp5j7i5rno.picard.replit.dev npx expo start --port 8080 --dev-client"
+args = "REACT_NATIVE_PACKAGER_HOSTNAME=cofund-dev.loca.lt npx expo start --port 8080 --dev-client"
 waitForPort = 8080
+
+[[workflows.workflow]]
+name = "Tunnel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx lt --port 8080 --subdomain cofund-dev"
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [[ports]]
 localPort = 8080
