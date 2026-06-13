@@ -331,54 +331,307 @@ left join public.investments i on i.status = 'active';
 
 
 -- ============================================================
--- SEED: Insert demo businesses (matches mockData.ts)
+-- WALLET TRANSACTIONS
 -- ============================================================
--- NOTE: Run this AFTER creating users through Auth or
--- replace owner_id NULLs with real UUIDs from your auth.users table.
+create table if not exists public.wallet_transactions (
+  id          uuid primary key default uuid_generate_v4(),
+  profile_id  uuid not null references public.profiles(id) on delete cascade,
+  type        text not null check (type in ('deposit','withdrawal','investment','return','fee')),
+  amount      numeric(18,2) not null,
+  description text not null default '',
+  status      text not null check (status in ('completed','pending')) default 'completed',
+  created_at  timestamptz not null default now()
+);
 
-insert into public.businesses
-  (name, industry, sector, description, location, years_operating, employee_count,
-   revenue_range, funding_goal, amount_raised, min_investment, expected_roi,
-   duration, trust_score, risk_level, risk_category, verification_status,
-   kyb_stage, brfr_status, investment_type, investor_count, days_left)
-values
-  ('Lagos Pharma Distributors','Pharmaceuticals','Healthcare',
-   'Leading pharmaceutical distributor serving 200+ pharmacies across Lagos and Ogun states.',
-   'Lagos Island, Lagos', 7, 48, '₦180M–₦240M/yr', 25000000, 18750000, 100000,
-   '22–28%','18 months', 87, 'low','B','verified', 5,'green','Profit Share', 47, 12),
+alter table public.wallet_transactions enable row level security;
 
-  ('Abuja Solar Energy Co.','Renewable Energy','Energy',
-   'Installing solar micro-grids for commercial and residential clients in FCT.',
-   'Wuse 2, Abuja', 4, 22, '₦45M–₦70M/yr', 15000000, 9000000, 50000,
-   '30–38%','24 months', 79, 'medium','C','verified', 5,'yellow','Fixed Return', 31, 28),
+create policy "Users can read own transactions"
+  on public.wallet_transactions for select
+  using (auth.uid() = profile_id);
 
-  ('Kano Agro-Processing Ltd','Agriculture','Agro-processing',
-   'Processing and packaging groundnut oil and sesame products for export.',
-   'Kano Industrial Estate', 9, 95, '₦320M–₦400M/yr', 40000000, 28000000, 300000,
-   '18–24%','12 months', 91, 'low','A','verified', 5,'green','Asset-Backed', 68, 5),
+create policy "Admins can read all transactions"
+  on public.wallet_transactions for select
+  using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin')
+  );
 
-  ('PH Logistics Fleet','Logistics','Transport',
-   'B2B last-mile logistics serving e-commerce platforms in Rivers State.',
-   'Port Harcourt, Rivers', 5, 35, '₦80M–₦120M/yr', 35000000, 12250000, 100000,
-   '25–32%','30 months', 74, 'medium','C','verified', 4,'yellow','Asset Leasing', 24, 45),
 
-  ('Lekki Suites Hotel','Hospitality','Hotels',
-   'Boutique business hotel with 42 rooms in Lekki Phase 1.',
-   'Lekki Phase 1, Lagos', 6, 62, '₦140M–₦180M/yr', 60000000, 42000000, 500000,
-   '16–20%','36 months', 83, 'low','B','verified', 5,'green','Profit Share', 52, 8),
+-- ============================================================
+-- DISPUTES
+-- ============================================================
+create table if not exists public.disputes (
+  id             uuid primary key default uuid_generate_v4(),
+  reference      text unique not null,
+  business_id    uuid references public.businesses(id) on delete set null,
+  investor_id    uuid references public.profiles(id) on delete set null,
+  investment_id  uuid references public.investments(id) on delete set null,
+  category       text not null,
+  subject        text not null,
+  details        text not null default '',
+  status         text not null check (status in ('open','under_review','resolved','escalated')) default 'open',
+  priority       text not null check (priority in ('low','medium','high','critical')) default 'medium',
+  evidence_count int not null default 0,
+  response       text,
+  assigned_to    text,
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now()
+);
 
-  ('TechHub Coworking Network','Technology','Real Estate',
-   'Operating 3 coworking spaces in Lagos with 600+ active members.',
-   'Victoria Island, Lagos', 3, 11, '₦18M–₦30M/yr', 20000000, 5000000, 50000,
-   '28–35%','18 months', 68, 'high','D','partial', 3,'orange','Profit Share', 14, 60),
+alter table public.disputes enable row level security;
 
-  ('GreenHouse Agro Ltd','Agriculture','Horticulture',
-   'Hydroponic vegetable farming supplying premium supermarkets and restaurants in Abuja.',
-   'Kubwa, Abuja', 2, 14, '₦12M–₦20M/yr', 18000000, 0, 50000,
-   '20–26%','24 months', 58, 'high','D','pending', 2,'green','Profit Share', 0, 90),
+create policy "Investor can read own disputes"
+  on public.disputes for select using (auth.uid() = investor_id);
 
-  ('TechBridge Solutions','Technology','Fintech',
-   'B2B payment infrastructure enabling MSME merchants to accept card and mobile payments.',
-   'Ikeja, Lagos', 1, 8, '₦5M–₦12M/yr', 12000000, 0, 50000,
-   '35–45%','18 months', 52, 'high','E','pending', 1,'green','Fixed Return', 0, 90)
+create policy "Investor can create disputes"
+  on public.disputes for insert with check (auth.uid() = investor_id);
+
+create policy "Admins have full dispute access"
+  on public.disputes for all
+  using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin')
+  );
+
+create trigger disputes_updated_at
+  before update on public.disputes
+  for each row execute function public.handle_updated_at();
+
+
+-- ============================================================
+-- SECONDARY MARKET LISTINGS
+-- ============================================================
+create table if not exists public.market_listings (
+  id               uuid primary key default uuid_generate_v4(),
+  investment_id    uuid references public.investments(id) on delete set null,
+  business_id      uuid references public.businesses(id) on delete set null,
+  seller_id        uuid references public.profiles(id) on delete set null,
+  original_amount  numeric(18,2) not null,
+  ask_price        numeric(18,2) not null,
+  expected_return  numeric(18,2),
+  maturity_date    date,
+  days_to_maturity int,
+  roi_percent      numeric(5,2),
+  premium_discount numeric(5,2) default 0,
+  seller_type      text check (seller_type in ('retail','institutional')) default 'retail',
+  status           text not null check (status in ('active','sold','cancelled')) default 'active',
+  created_at       timestamptz not null default now()
+);
+
+alter table public.market_listings enable row level security;
+
+create policy "Anyone can read active listings"
+  on public.market_listings for select using (status = 'active');
+
+create policy "Sellers can manage own listings"
+  on public.market_listings for all using (auth.uid() = seller_id);
+
+
+-- ============================================================
+-- MESSAGE THREADS
+-- ============================================================
+create table if not exists public.message_threads (
+  id           uuid primary key default uuid_generate_v4(),
+  investor_id  uuid references public.profiles(id) on delete cascade,
+  business_id  uuid references public.businesses(id) on delete cascade,
+  last_message text,
+  unread_count int not null default 0,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+
+alter table public.message_threads enable row level security;
+
+create policy "Participants can read own threads"
+  on public.message_threads for select
+  using (auth.uid() = investor_id or auth.uid() = business_id);
+
+create trigger message_threads_updated_at
+  before update on public.message_threads
+  for each row execute function public.handle_updated_at();
+
+
+-- ============================================================
+-- LOOKUP / REFERENCE TABLES  (required seed data)
+-- These drive dropdowns, validation, and KYC logic.
+-- They never change after launch — seed once, query forever.
+-- ============================================================
+
+create table if not exists public.industries (
+  id   serial primary key,
+  name text not null unique
+);
+
+create table if not exists public.countries (
+  id   serial primary key,
+  name text not null unique
+);
+
+create table if not exists public.investment_goals (
+  id    serial primary key,
+  label text not null unique
+);
+
+create table if not exists public.risk_profiles (
+  id    serial primary key,
+  label text not null unique,
+  sub   text,
+  icon  text
+);
+
+create table if not exists public.experience_levels (
+  id    serial primary key,
+  label text not null unique
+);
+
+create table if not exists public.income_ranges (
+  id    serial primary key,
+  label text not null unique
+);
+
+create table if not exists public.fund_sources (
+  id    serial primary key,
+  label text not null unique
+);
+
+create table if not exists public.business_types (
+  id    serial primary key,
+  label text not null unique
+);
+
+create table if not exists public.years_operating_options (
+  id    serial primary key,
+  label text not null unique
+);
+
+create table if not exists public.annual_revenue_ranges (
+  id    serial primary key,
+  label text not null unique
+);
+
+create table if not exists public.investment_types (
+  id    serial primary key,
+  label text not null unique
+);
+
+create table if not exists public.investment_durations (
+  id     serial primary key,
+  label  text not null unique,
+  months int not null
+);
+
+create table if not exists public.dispute_categories (
+  id    serial primary key,
+  label text not null unique
+);
+
+create table if not exists public.kyb_stages (
+  stage int primary key,
+  label text not null
+);
+
+create table if not exists public.kyc_tiers (
+  tier              int primary key,
+  label             text not null,
+  investment_limit  text not null,
+  description       text,
+  requirements      text[] not null
+);
+
+create table if not exists public.pro_plans (
+  id        text primary key,
+  label     text not null,
+  price_ngn int not null,
+  period    text not null,
+  saving    text
+);
+
+
+-- ============================================================
+-- SEED: Lookup / Reference Data  (run once, keep forever)
+-- ============================================================
+
+insert into public.industries (name) values
+  ('Agriculture'),('Healthcare'),('Logistics'),('Technology'),
+  ('Hospitality'),('Real Estate'),('Manufacturing'),('Retail'),
+  ('Energy'),('Education'),('Finance'),('Other')
+on conflict do nothing;
+
+insert into public.countries (name) values
+  ('Nigeria'),('Ghana'),('Kenya'),('South Africa'),('Ethiopia'),('Egypt'),
+  ('Tanzania'),('Uganda'),('Rwanda'),('Senegal'),('Côte d''Ivoire'),('Cameroon'),
+  ('Zambia'),('Zimbabwe'),('Mozambique'),('Botswana'),('Malawi')
+on conflict do nothing;
+
+insert into public.investment_goals (label) values
+  ('Grow wealth'),('Passive income'),('Retirement planning'),
+  ('Save for future'),('Diversify portfolio')
+on conflict do nothing;
+
+insert into public.risk_profiles (label, sub, icon) values
+  ('Conservative', 'Preserve capital, low risk',  'shield'),
+  ('Moderate',     'Balanced growth & safety',    'activity'),
+  ('Aggressive',   'High growth, higher risk',    'trending-up')
+on conflict do nothing;
+
+insert into public.experience_levels (label) values
+  ('First timer'),('1–2 years'),('3–5 years'),('5+ years')
+on conflict do nothing;
+
+insert into public.income_ranges (label) values
+  ('Below ₦100k/mo'),('₦100k – ₦500k/mo'),('₦500k – ₦1M/mo'),('Above ₦1M/mo')
+on conflict do nothing;
+
+insert into public.fund_sources (label) values
+  ('Salary / Employment'),('Business income'),('Inheritance'),
+  ('Savings'),('Investments / Dividends')
+on conflict do nothing;
+
+insert into public.business_types (label) values
+  ('Sole Proprietorship'),('Partnership'),('Limited Liability (LLC)'),('NGO / Non-profit')
+on conflict do nothing;
+
+insert into public.years_operating_options (label) values
+  ('Less than 1 year'),('1–2 years'),('3–5 years'),('5+ years')
+on conflict do nothing;
+
+insert into public.annual_revenue_ranges (label) values
+  ('Below ₦1M'),('₦1M – ₦5M'),('₦5M – ₦20M'),('Above ₦20M')
+on conflict do nothing;
+
+insert into public.investment_types (label) values
+  ('Profit Share'),('Fixed Return'),('Asset-Backed'),('Asset Leasing'),('Working Capital')
+on conflict do nothing;
+
+insert into public.investment_durations (label, months) values
+  ('6 months',6),('12 months',12),('18 months',18),
+  ('24 months',24),('30 months',30),('36 months',36)
+on conflict do nothing;
+
+insert into public.dispute_categories (label) values
+  ('Milestone Delay'),('Payout Delay'),('Communication Gap'),('Document Issue'),('Other')
+on conflict do nothing;
+
+insert into public.kyb_stages (stage, label) values
+  (1,'Basic Eligibility'),
+  (2,'Business Verification (KYB)'),
+  (3,'Financial Assessment'),
+  (4,'Operational Assessment'),
+  (5,'Investment Readiness')
+on conflict do nothing;
+
+insert into public.kyc_tiers (tier, label, investment_limit, description, requirements) values
+  (1, 'Tier 1 — Basic',          '₦500K/investment',
+   'Identity verified. You can invest up to ₦500,000 per opportunity.',
+   array['Valid NIN or BVN','Email verification','Phone number']),
+  (2, 'Tier 2 — Enhanced',       '₦5M/investment',
+   'Enhanced due diligence for larger investments up to ₦5 million.',
+   array['National ID card or Passport','Utility bill (last 3 months)','Bank statement']),
+  (3, 'Tier 3 — Institutional',  'Unlimited',
+   'Full institutional access with no investment limits.',
+   array['CAC registration documents','Board resolution','Audited financials (2 years)'])
+on conflict do nothing;
+
+insert into public.pro_plans (id, label, price_ngn, period, saving) values
+  ('monthly',   'Monthly',   5000,  '/month',    null),
+  ('quarterly', 'Quarterly', 12000, '/3 months', 'Save 20%'),
+  ('annual',    'Annual',    40000, '/year',      'Save 33%')
 on conflict do nothing;
