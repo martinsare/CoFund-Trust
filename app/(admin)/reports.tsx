@@ -6,7 +6,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
-import { AdminTransaction, InvestmentBreakdownItem, RevenueDataPoint } from "@/constants/mockData";
+import { InvestmentBreakdownItem, ReportTxRow, RevenueDataPoint } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
 
 const PERIODS = ["This Month", "Last Month", "Q1 2025", "All Time"] as const;
@@ -18,7 +18,7 @@ interface PeriodData {
   changeUp: boolean;
   chartData: RevenueDataPoint[];
   breakdown: InvestmentBreakdownItem[];
-  transactions: AdminTransaction[];
+  transactions: ReportTxRow[];
   kpis: { label: string; value: string; icon: string; color: string }[];
 }
 

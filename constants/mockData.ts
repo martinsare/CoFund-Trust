@@ -932,6 +932,75 @@ export const MOCK_REFERRAL_HISTORY: ReferralHistoryItem[] = [
   { id: "r5", name: "Bello M.",       joined: "Apr 10, 2026", status: "invested",    earned: 5000 },
 ];
 
+export type AdminTxType = "investment" | "payout" | "fee" | "refund" | "listing_fee";
+export type AdminTxStatus = "pending" | "completed" | "failed";
+export interface AdminTransaction {
+  id: string;
+  type: AdminTxType;
+  amount: number;
+  businessId: string;
+  businessName: string;
+  investorId?: string;
+  investorName?: string;
+  description: string;
+  date: string;
+  status: AdminTxStatus;
+}
+
+export type AdminListingType = "equity" | "debt" | "revenue_share" | "asset_backed";
+export type AdminListingStatus = "active" | "pending_review" | "closed" | "paused";
+export interface AdminListing {
+  id: string;
+  businessId: string;
+  businessName: string;
+  industry: string;
+  listingType: AdminListingType;
+  minInvestment: number;
+  fundingGoal: number;
+  amountRaised: number;
+  status: AdminListingStatus;
+  listedDate: string;
+  expiryDate: string;
+}
+
+export type AdminThreadStatus = "open" | "archived" | "resolved";
+export type AdminThreadCategory = "inquiry" | "support" | "dispute" | "update";
+export interface AdminThread {
+  id: string;
+  participantNames: string[];
+  subject: string;
+  lastMessage: string;
+  lastMessageDate: string;
+  status: AdminThreadStatus;
+  unreadCount: number;
+  category: AdminThreadCategory;
+}
+
+export const INITIAL_ADMIN_TRANSACTIONS: AdminTransaction[] = [
+  { id: "wt-1", type: "investment",  amount: 500000,    businessId: "biz-1", businessName: "Lagos Pharma Ltd",      investorId: "inv-1", investorName: "Emeka Osei",  description: "Series A investment tranche 1",       date: "2026-06-13", status: "completed" },
+  { id: "wt-2", type: "payout",      amount: 12400000,  businessId: "biz-2", businessName: "TechBridge Solutions",  investorId: "inv-2", investorName: "Batch #13",   description: "Quarterly payout batch release",      date: "2026-06-12", status: "completed" },
+  { id: "wt-3", type: "fee",         amount: 85000,     businessId: "biz-2", businessName: "TechBridge Solutions",                                                       description: "Platform placement fee (1.7%)",       date: "2026-06-10", status: "completed" },
+  { id: "wt-4", type: "investment",  amount: 1200000,   businessId: "biz-3", businessName: "GreenHouse Agro Ltd",   investorId: "inv-3", investorName: "Amina Bello", description: "Seed round contribution",             date: "2026-06-09", status: "completed" },
+  { id: "wt-5", type: "listing_fee", amount: 150000,    businessId: "biz-4", businessName: "Apex Logistics NG",                                                          description: "SME listing fee — standard tier",    date: "2026-06-08", status: "completed" },
+  { id: "wt-6", type: "refund",      amount: 200000,    businessId: "biz-1", businessName: "Lagos Pharma Ltd",      investorId: "inv-4", investorName: "Chidi Nwosu", description: "Partial refund — cancelled tranche", date: "2026-06-07", status: "pending"   },
+];
+
+export const INITIAL_ADMIN_LISTINGS: AdminListing[] = [
+  { id: "ml-1", businessId: "biz-1", businessName: "Lagos Pharma Ltd",      industry: "Healthcare",  listingType: "equity",        minInvestment: 50000,  fundingGoal: 5000000,  amountRaised: 2800000, status: "active",         listedDate: "2026-04-01", expiryDate: "2026-09-30" },
+  { id: "ml-2", businessId: "biz-2", businessName: "TechBridge Solutions",  industry: "Technology",  listingType: "revenue_share", minInvestment: 100000, fundingGoal: 8000000,  amountRaised: 6100000, status: "active",         listedDate: "2026-03-15", expiryDate: "2026-09-15" },
+  { id: "ml-3", businessId: "biz-3", businessName: "GreenHouse Agro Ltd",   industry: "Agriculture", listingType: "debt",          minInvestment: 25000,  fundingGoal: 3000000,  amountRaised: 900000,  status: "pending_review", listedDate: "2026-06-10", expiryDate: "2026-12-10" },
+  { id: "ml-4", businessId: "biz-4", businessName: "Apex Logistics NG",     industry: "Logistics",   listingType: "asset_backed",  minInvestment: 75000,  fundingGoal: 4500000,  amountRaised: 4500000, status: "closed",         listedDate: "2026-01-01", expiryDate: "2026-06-01" },
+  { id: "ml-5", businessId: "biz-5", businessName: "SolarFarm West Africa", industry: "Energy",      listingType: "equity",        minInvestment: 200000, fundingGoal: 15000000, amountRaised: 3200000, status: "paused",         listedDate: "2026-05-01", expiryDate: "2026-11-01" },
+];
+
+export const INITIAL_ADMIN_THREADS: AdminThread[] = [
+  { id: "at-1", participantNames: ["Emeka Osei", "Lagos Pharma Ltd"],      subject: "Q2 milestone progress update",              lastMessage: "The batch delivery target for Q2 has been met ahead of schedule.",       lastMessageDate: "2026-06-12", status: "open",     unreadCount: 2, category: "update"   },
+  { id: "at-2", participantNames: ["Amina Bello", "CoFund Support"],       subject: "KYC document submission help",               lastMessage: "Please resubmit your BVN and CAC certificate scan.",                     lastMessageDate: "2026-06-11", status: "open",     unreadCount: 1, category: "support"  },
+  { id: "at-3", participantNames: ["Chidi Nwosu", "TechBridge Solutions"], subject: "Dispute: delayed payout — Ref INV-4001",     lastMessage: "We are reviewing the escrow release timeline with our compliance team.", lastMessageDate: "2026-06-10", status: "open",     unreadCount: 0, category: "dispute"  },
+  { id: "at-4", participantNames: ["Fatima Yusuf", "GreenHouse Agro Ltd"], subject: "Investment inquiry — seed round",            lastMessage: "Thank you for your interest. Minimum investment is ₦25,000.",            lastMessageDate: "2026-06-08", status: "resolved", unreadCount: 0, category: "inquiry"  },
+  { id: "at-5", participantNames: ["Admin", "SolarFarm West Africa"],      subject: "Listing paused — compliance review needed", lastMessage: "Please provide updated financial statements for 2025.",                   lastMessageDate: "2026-06-07", status: "archived", unreadCount: 0, category: "support"  },
+];
+
 export interface RevenueDataPoint { month: string; value: number; label: string; }
 export const ADMIN_REVENUE_DATA: RevenueDataPoint[] = [
   { month: "Jan", value: 28, label: "₦28M" },
@@ -950,8 +1019,8 @@ export const ADMIN_INVESTMENT_BREAKDOWN: InvestmentBreakdownItem[] = [
   { label: "Real Estate",   percent: 12, color: "#7c3aed" },
 ];
 
-export interface AdminTransaction { type: string; label: string; amount: string; date: string; icon: string; color: string; }
-export const ADMIN_RECENT_TRANSACTIONS: AdminTransaction[] = [
+export interface ReportTxRow { type: string; label: string; amount: string; date: string; icon: string; color: string; }
+export const ADMIN_RECENT_TRANSACTIONS: ReportTxRow[] = [
   { type: "investment", label: "New investment — Lagos Pharma",          amount: "+₦500,000",     date: "Today 09:14",  icon: "trending-up",  color: "#2db56e" },
   { type: "payout",     label: "Payout — Batch #13",                     amount: "-₦12,400,000",  date: "Yesterday",    icon: "download",     color: "#e03e3e" },
   { type: "fee",        label: "Platform fee — TechBridge Solutions",    amount: "+₦85,000",      date: "Jun 10",       icon: "dollar-sign",  color: "#c9860d" },

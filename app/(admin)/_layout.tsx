@@ -90,9 +90,23 @@ export default function AdminLayout() {
       />
       <Tabs.Screen
         name="business-detail/[id]"
-        options={{
-          href: null,
-        }}
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="investor-detail/[id]"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="manage-transactions"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="manage-listings"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="manage-threads"
+        options={{ href: null }}
       />
     </Tabs>
   );

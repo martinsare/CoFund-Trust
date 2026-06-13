@@ -2,12 +2,17 @@ import React, { createContext, useContext, useMemo, useState } from "react";
 
 import { useAuth } from "@/context/AuthContext";
 import {
+  AdminListing,
+  AdminThread,
+  AdminTransaction,
   BUSINESSES,
   Business,
   BrfrStatus,
   DisputePriority,
   DisputeRecord,
-  DisputeStatus,
+  INITIAL_ADMIN_LISTINGS,
+  INITIAL_ADMIN_THREADS,
+  INITIAL_ADMIN_TRANSACTIONS,
   RiskCategory,
   RiskLevel,
   VerificationStatus,
@@ -54,10 +59,28 @@ interface SystemContextType {
   businesses: Business[];
   currentBusiness: Business | null;
   disputes: DisputeRecord[];
+  adminTransactions: AdminTransaction[];
+  adminListings: AdminListing[];
+  adminThreads: AdminThread[];
+
   createBusiness: (draft: BusinessDraft) => Business;
   updateBusiness: (id: string, patch: Partial<Business>) => void;
+
   submitDispute: (draft: DisputeDraft) => DisputeRecord;
   updateDispute: (id: string, patch: Partial<DisputeRecord>) => void;
+  deleteDispute: (id: string) => void;
+
+  addAdminTransaction: (tx: Omit<AdminTransaction, "id">) => void;
+  updateAdminTransaction: (id: string, patch: Partial<AdminTransaction>) => void;
+  deleteAdminTransaction: (id: string) => void;
+
+  addAdminListing: (listing: Omit<AdminListing, "id">) => void;
+  updateAdminListing: (id: string, patch: Partial<AdminListing>) => void;
+  deleteAdminListing: (id: string) => void;
+
+  addAdminThread: (thread: Omit<AdminThread, "id">) => void;
+  updateAdminThread: (id: string, patch: Partial<AdminThread>) => void;
+  deleteAdminThread: (id: string) => void;
 }
 
 const SystemContext = createContext<SystemContextType | null>(null);
@@ -70,8 +93,6 @@ const INITIAL_BUSINESSES = BUSINESSES.map((business) => ({
   milestones: business.milestones.map((milestone) => ({ ...milestone })),
 }));
 
-const INITIAL_DISPUTES: DisputeRecord[] = [];
-
 function getPriorityFromCategory(category: string): DisputePriority {
   const normalized = category.toLowerCase();
   if (normalized.includes("fraud") || normalized.includes("critical")) return "critical";
@@ -83,7 +104,10 @@ function getPriorityFromCategory(category: string): DisputePriority {
 export function SystemProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [businesses, setBusinesses] = useState<Business[]>(INITIAL_BUSINESSES);
-  const [disputes, setDisputes] = useState<DisputeRecord[]>(INITIAL_DISPUTES);
+  const [disputes, setDisputes] = useState<DisputeRecord[]>([]);
+  const [adminTransactions, setAdminTransactions] = useState<AdminTransaction[]>(INITIAL_ADMIN_TRANSACTIONS);
+  const [adminListings, setAdminListings] = useState<AdminListing[]>(INITIAL_ADMIN_LISTINGS);
+  const [adminThreads, setAdminThreads] = useState<AdminThread[]>(INITIAL_ADMIN_THREADS);
 
   const currentBusiness = useMemo(() => {
     if (!user || user.role !== "business") return null;
@@ -124,7 +148,7 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateBusiness = (id: string, patch: Partial<Business>) => {
-    setBusinesses((prev) => prev.map((business) => (business.id === id ? { ...business, ...patch } : business)));
+    setBusinesses((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)));
   };
 
   const submitDispute = (draft: DisputeDraft) => {
@@ -150,10 +174,51 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateDispute = (id: string, patch: Partial<DisputeRecord>) => {
-    setDisputes((prev) => prev.map((dispute) => (dispute.id === id ? { ...dispute, ...patch, updatedAt: new Date().toISOString().slice(0, 10) } : dispute)));
+    setDisputes((prev) => prev.map((d) => (d.id === id ? { ...d, ...patch, updatedAt: new Date().toISOString().slice(0, 10) } : d)));
   };
 
-  const value = { businesses, currentBusiness, disputes, createBusiness, updateBusiness, submitDispute, updateDispute };
+  const deleteDispute = (id: string) => {
+    setDisputes((prev) => prev.filter((d) => d.id !== id));
+  };
+
+  const addAdminTransaction = (tx: Omit<AdminTransaction, "id">) => {
+    setAdminTransactions((prev) => [{ ...tx, id: `wt-${Date.now()}` }, ...prev]);
+  };
+  const updateAdminTransaction = (id: string, patch: Partial<AdminTransaction>) => {
+    setAdminTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+  };
+  const deleteAdminTransaction = (id: string) => {
+    setAdminTransactions((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const addAdminListing = (listing: Omit<AdminListing, "id">) => {
+    setAdminListings((prev) => [{ ...listing, id: `ml-${Date.now()}` }, ...prev]);
+  };
+  const updateAdminListing = (id: string, patch: Partial<AdminListing>) => {
+    setAdminListings((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)));
+  };
+  const deleteAdminListing = (id: string) => {
+    setAdminListings((prev) => prev.filter((l) => l.id !== id));
+  };
+
+  const addAdminThread = (thread: Omit<AdminThread, "id">) => {
+    setAdminThreads((prev) => [{ ...thread, id: `at-${Date.now()}` }, ...prev]);
+  };
+  const updateAdminThread = (id: string, patch: Partial<AdminThread>) => {
+    setAdminThreads((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+  };
+  const deleteAdminThread = (id: string) => {
+    setAdminThreads((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const value: SystemContextType = {
+    businesses, currentBusiness, disputes, adminTransactions, adminListings, adminThreads,
+    createBusiness, updateBusiness,
+    submitDispute, updateDispute, deleteDispute,
+    addAdminTransaction, updateAdminTransaction, deleteAdminTransaction,
+    addAdminListing, updateAdminListing, deleteAdminListing,
+    addAdminThread, updateAdminThread, deleteAdminThread,
+  };
 
   return <SystemContext.Provider value={value}>{children}</SystemContext.Provider>;
 }

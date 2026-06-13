@@ -156,7 +156,34 @@ export default function AdminSettings() {
         </View>
       </FadeSlideIn>
 
-      <FadeSlideIn delay={340}>
+      <FadeSlideIn delay={300}>
+        <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>Data Tables</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          {[
+            { icon: "repeat" as const,       label: "Wallet Transactions", sub: "Add, edit and delete financial records",       color: "#1a5e9a", route: "/(admin)/manage-transactions" },
+            { icon: "list" as const,          label: "Market Listings",     sub: "Manage active and pending SME listings",        color: "#7c3aed", route: "/(admin)/manage-listings"    },
+            { icon: "alert-circle" as const,  label: "Disputes",            sub: "Review, update and remove dispute records",     color: "#e03e3e", route: "/(admin)/disputes"           },
+            { icon: "message-square" as const,label: "Message Threads",     sub: "Manage investor and SME message threads",       color: "#2db56e", route: "/(admin)/manage-threads"    },
+          ].map((item, i, arr) => (
+            <PressableScale
+              key={item.label}
+              style={[styles.menuItem, i < arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.borderLight }]}
+              onPress={() => router.push(item.route as any)}
+            >
+              <View style={[styles.menuIcon, { backgroundColor: item.color + "18" }]}>
+                <Feather name={item.icon} size={16} color={item.color} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.menuLabel, { color: colors.foreground }]}>{item.label}</Text>
+                <Text style={[styles.menuSub, { color: colors.mutedForeground }]}>{item.sub}</Text>
+              </View>
+              <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
+            </PressableScale>
+          ))}
+        </View>
+      </FadeSlideIn>
+
+      <FadeSlideIn delay={380}>
         <PressableScale
           style={[styles.logoutBtn, { backgroundColor: "#fde8e8", borderColor: "#fca5a5" }]}
           onPress={handleLogout}
