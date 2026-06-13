@@ -16,8 +16,7 @@ export default function Index() {
   }
 
   if (!user) return <Redirect href="/onboarding" />;
-  if (user.role === "investor" || user.role === "admin") {
-    return <Redirect href="/(investor)/dashboard" />;
-  }
+  if (user.role === "admin") return <Redirect href="/(admin)/dashboard" />;
+  if (user.role === "investor") return <Redirect href="/(investor)/dashboard" />;
   return <Redirect href="/(business)/dashboard" />;
 }

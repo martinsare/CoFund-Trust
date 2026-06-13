@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   avatarHint: { fontSize: 12, fontFamily: "Inter_400Regular" },
   section: { borderRadius: 14, borderWidth: 1, overflow: "hidden" },
-  sectionLabel: { fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.8, fontFamily: "Inter_600SemiBold", marginBottom: -4 },
+  sectionLabel: { fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.8, fontFamily: "Inter_600SemiBold", marginBottom: 6 },
   divider: { height: 1, marginLeft: 58 },
   fieldRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 12, gap: 12 },
   fieldIconWrap: { width: 32, height: 32, borderRadius: 9, alignItems: "center", justifyContent: "center" },

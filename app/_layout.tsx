@@ -28,6 +28,7 @@ function RootLayoutNav() {
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(investor)" />
       <Stack.Screen name="(business)" />
+      <Stack.Screen name="(admin)" />
       <Stack.Screen name="business/[id]" options={{ presentation: "card" }} />
       <Stack.Screen name="investor/analytics" options={{ presentation: "card" }} />
       <Stack.Screen name="investor/pro" options={{ presentation: "modal" }} />

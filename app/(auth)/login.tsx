@@ -43,7 +43,7 @@ export default function Login() {
     try {
       await login(email.trim(), password);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace("/(investor)/dashboard");
+      router.replace("/");
     } catch {
       setError("Login failed. Please try again.");
     } finally {
@@ -126,7 +126,7 @@ export default function Login() {
           <View style={[styles.hint, { backgroundColor: colors.primaryXLight, borderColor: colors.primaryLight }]}>
             <Feather name="info" size={13} color={colors.primary} />
             <Text style={[styles.hintText, { color: colors.primary }]}>
-              Demo: investor@cofund.africa or business@cofund.africa (any password)
+              Demo: investor@cofund.africa · business@cofund.africa · admin@cofund.africa (any password)
             </Text>
           </View>
         </View>

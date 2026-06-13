@@ -1,1 +1,0 @@
-- [CoFund Expo Stack](cofund-expo-stack.md) — key architecture decisions, animation rules, route structure, and package gotchas for this app

@@ -4,6 +4,16 @@ export type VerificationStatus = "verified" | "partial" | "pending";
 export type InvestmentStatus = "pending" | "active" | "completed" | "defaulted" | "cancelled";
 export type UpdateType = "milestone" | "report" | "update";
 export type NotificationType = "opportunity" | "investment" | "update" | "return";
+export type BrfrStatus = "green" | "yellow" | "orange" | "red";
+export type MilestoneStatus = "completed" | "active" | "pending";
+
+export const KYB_STAGES = [
+  "Basic Eligibility",
+  "Business Verification (KYB)",
+  "Financial Assessment",
+  "Operational Assessment",
+  "Investment Readiness",
+] as const;
 
 export interface BusinessUpdate {
   id: string;
@@ -11,6 +21,15 @@ export interface BusinessUpdate {
   content: string;
   date: string;
   type: UpdateType;
+}
+
+export interface Milestone {
+  id: string;
+  title: string;
+  description: string;
+  status: MilestoneStatus;
+  dueDate: string;
+  amount: number;
 }
 
 export interface Business {
@@ -21,6 +40,8 @@ export interface Business {
   description: string;
   location: string;
   yearsOperating: number;
+  employeeCount: number;
+  revenueRange: string;
   fundingGoal: number;
   amountRaised: number;
   minInvestment: number;
@@ -30,9 +51,12 @@ export interface Business {
   riskLevel: RiskLevel;
   riskCategory: RiskCategory;
   verificationStatus: VerificationStatus;
+  kybStage: 1 | 2 | 3 | 4 | 5;
+  brfrStatus: BrfrStatus;
   investmentType: string;
   investorCount: number;
   updates: BusinessUpdate[];
+  milestones: Milestone[];
   daysLeft: number;
 }
 
@@ -120,6 +144,8 @@ export const BUSINESSES: Business[] = [
       "Leading pharmaceutical distributor serving 200+ pharmacies across Lagos and Ogun states. Expanding distribution network to Abuja with working capital financing for new inventory cycle.",
     location: "Lagos Island, Lagos",
     yearsOperating: 7,
+    employeeCount: 48,
+    revenueRange: "₦180M–₦240M/yr",
     fundingGoal: 25000000,
     amountRaised: 18750000,
     minInvestment: 100000,
@@ -129,6 +155,8 @@ export const BUSINESSES: Business[] = [
     riskLevel: "low",
     riskCategory: "B",
     verificationStatus: "verified",
+    kybStage: 5,
+    brfrStatus: "green",
     investmentType: "Profit Share",
     investorCount: 47,
     daysLeft: 12,
@@ -148,6 +176,12 @@ export const BUSINESSES: Business[] = [
         type: "milestone",
       },
     ],
+    milestones: [
+      { id: "m1a", title: "Working Capital Disbursement", description: "Initial escrow release for Q1 inventory purchase", status: "completed", dueDate: "2026-03-01", amount: 6250000 },
+      { id: "m1b", title: "Abuja Distribution Centre", description: "Lease signed and fitout commenced", status: "completed", dueDate: "2026-05-01", amount: 6250000 },
+      { id: "m1c", title: "Fleet Expansion – Phase 1", description: "3 new refrigerated trucks delivered and operational", status: "active", dueDate: "2026-08-01", amount: 6250000 },
+      { id: "m1d", title: "Abuja Go-Live", description: "Full operations launched in Abuja with 50+ pharmacy clients", status: "pending", dueDate: "2026-11-01", amount: 6250000 },
+    ],
   },
   {
     id: "2",
@@ -158,6 +192,8 @@ export const BUSINESSES: Business[] = [
       "Installing solar micro-grids for commercial and residential clients in FCT. Proven revenue model with 3-year maintenance contracts. Expanding fleet of installation teams.",
     location: "Wuse 2, Abuja",
     yearsOperating: 4,
+    employeeCount: 22,
+    revenueRange: "₦45M–₦70M/yr",
     fundingGoal: 15000000,
     amountRaised: 9000000,
     minInvestment: 50000,
@@ -167,6 +203,8 @@ export const BUSINESSES: Business[] = [
     riskLevel: "medium",
     riskCategory: "C",
     verificationStatus: "verified",
+    kybStage: 5,
+    brfrStatus: "yellow",
     investmentType: "Fixed Return",
     investorCount: 31,
     daysLeft: 28,
@@ -179,6 +217,12 @@ export const BUSINESSES: Business[] = [
         type: "milestone",
       },
     ],
+    milestones: [
+      { id: "m2a", title: "Equipment Procurement", description: "Solar panels, inverters and batteries sourced", status: "completed", dueDate: "2026-02-15", amount: 5000000 },
+      { id: "m2b", title: "50 Installations", description: "Reach 50 active solar installations in FCT", status: "completed", dueDate: "2026-05-15", amount: 4000000 },
+      { id: "m2c", title: "Team Scale-Up", description: "Hire and train 8 additional installation engineers", status: "active", dueDate: "2026-08-15", amount: 3000000 },
+      { id: "m2d", title: "100 Installations & Maintenance Revenue", description: "Double client base with recurring contracts", status: "pending", dueDate: "2026-11-15", amount: 3000000 },
+    ],
   },
   {
     id: "3",
@@ -189,6 +233,8 @@ export const BUSINESSES: Business[] = [
       "Processing and packaging groundnut oil and sesame products for export. Equipment acquisition financing for two new cold-press machines to triple output capacity.",
     location: "Kano Industrial Estate",
     yearsOperating: 9,
+    employeeCount: 95,
+    revenueRange: "₦320M–₦400M/yr",
     fundingGoal: 40000000,
     amountRaised: 28000000,
     minInvestment: 300000,
@@ -198,6 +244,8 @@ export const BUSINESSES: Business[] = [
     riskLevel: "low",
     riskCategory: "A",
     verificationStatus: "verified",
+    kybStage: 5,
+    brfrStatus: "green",
     investmentType: "Asset-Backed",
     investorCount: 68,
     daysLeft: 5,
@@ -210,6 +258,12 @@ export const BUSINESSES: Business[] = [
         type: "milestone",
       },
     ],
+    milestones: [
+      { id: "m3a", title: "Machine #1 Procurement", description: "First cold-press machine purchased and shipped", status: "completed", dueDate: "2026-04-01", amount: 14000000 },
+      { id: "m3b", title: "Machine #1 Commissioning", description: "Installation, testing and first production run", status: "active", dueDate: "2026-06-15", amount: 7000000 },
+      { id: "m3c", title: "Machine #2 Procurement", description: "Second cold-press machine ordered", status: "pending", dueDate: "2026-08-01", amount: 14000000 },
+      { id: "m3d", title: "Full Capacity Operations", description: "Both machines running at 85%+ capacity for export", status: "pending", dueDate: "2026-12-01", amount: 5000000 },
+    ],
   },
   {
     id: "4",
@@ -220,6 +274,8 @@ export const BUSINESSES: Business[] = [
       "B2B last-mile logistics serving e-commerce platforms in Rivers State. Expanding fleet from 12 to 30 vehicles to meet growing demand from online retailers.",
     location: "Port Harcourt, Rivers",
     yearsOperating: 5,
+    employeeCount: 35,
+    revenueRange: "₦80M–₦120M/yr",
     fundingGoal: 35000000,
     amountRaised: 12250000,
     minInvestment: 100000,
@@ -229,10 +285,18 @@ export const BUSINESSES: Business[] = [
     riskLevel: "medium",
     riskCategory: "C",
     verificationStatus: "verified",
+    kybStage: 4,
+    brfrStatus: "yellow",
     investmentType: "Asset Leasing",
     investorCount: 24,
     daysLeft: 45,
     updates: [],
+    milestones: [
+      { id: "m4a", title: "Fleet Batch 1 (6 vehicles)", description: "First 6 vehicles purchased and insured", status: "completed", dueDate: "2026-03-01", amount: 8000000 },
+      { id: "m4b", title: "Driver Recruitment & Training", description: "18 drivers hired and safety-certified", status: "active", dueDate: "2026-06-01", amount: 4250000 },
+      { id: "m4c", title: "Fleet Batch 2 (12 vehicles)", description: "Next 12 vehicles to expand route coverage", status: "pending", dueDate: "2026-10-01", amount: 14000000 },
+      { id: "m4d", title: "Full Fleet Operational", description: "30 vehicles active with e-commerce SLA contracts", status: "pending", dueDate: "2027-02-01", amount: 8750000 },
+    ],
   },
   {
     id: "5",
@@ -243,6 +307,8 @@ export const BUSINESSES: Business[] = [
       "Boutique business hotel with 42 rooms in Lekki Phase 1. Refinancing for renovation and smart-room upgrades. 82% average occupancy rate over past 2 years.",
     location: "Lekki Phase 1, Lagos",
     yearsOperating: 6,
+    employeeCount: 62,
+    revenueRange: "₦140M–₦180M/yr",
     fundingGoal: 60000000,
     amountRaised: 42000000,
     minInvestment: 500000,
@@ -252,6 +318,8 @@ export const BUSINESSES: Business[] = [
     riskLevel: "low",
     riskCategory: "B",
     verificationStatus: "verified",
+    kybStage: 5,
+    brfrStatus: "green",
     investmentType: "Profit Share",
     investorCount: 52,
     daysLeft: 8,
@@ -264,6 +332,12 @@ export const BUSINESSES: Business[] = [
         type: "update",
       },
     ],
+    milestones: [
+      { id: "m5a", title: "Phase 1 – Lobby & 18 Rooms", description: "Renovation and smart-room fitout complete", status: "completed", dueDate: "2026-05-15", amount: 20000000 },
+      { id: "m5b", title: "Phase 2 – Remaining 24 Rooms", description: "Full hotel renovation and technology upgrade", status: "active", dueDate: "2026-09-01", amount: 22000000 },
+      { id: "m5c", title: "Soft Launch & Marketing Push", description: "Rebranding, OTA listing updates and corporate sales", status: "pending", dueDate: "2026-11-01", amount: 10000000 },
+      { id: "m5d", title: "Occupancy Target 90%", description: "Sustained 90% occupancy triggering final profit-share", status: "pending", dueDate: "2027-03-01", amount: 8000000 },
+    ],
   },
   {
     id: "6",
@@ -274,6 +348,8 @@ export const BUSINESSES: Business[] = [
       "Operating 3 coworking spaces in Lagos with 600+ active members. Expanding to Abuja and Ibadan with revenue-based financing.",
     location: "Victoria Island, Lagos",
     yearsOperating: 3,
+    employeeCount: 11,
+    revenueRange: "₦18M–₦30M/yr",
     fundingGoal: 20000000,
     amountRaised: 5000000,
     minInvestment: 50000,
@@ -283,10 +359,79 @@ export const BUSINESSES: Business[] = [
     riskLevel: "high",
     riskCategory: "D",
     verificationStatus: "partial",
+    kybStage: 3,
+    brfrStatus: "orange",
     investmentType: "Profit Share",
     investorCount: 14,
     daysLeft: 60,
     updates: [],
+    milestones: [
+      { id: "m6a", title: "Abuja Location – Lease", description: "Secure and sign lease for Abuja coworking space", status: "active", dueDate: "2026-07-01", amount: 5000000 },
+      { id: "m6b", title: "Abuja Fitout & Launch", description: "Renovate and open Abuja location with 150 desks", status: "pending", dueDate: "2026-10-01", amount: 8000000 },
+      { id: "m6c", title: "Ibadan Location – Lease & Launch", description: "Expand into Ibadan market", status: "pending", dueDate: "2027-02-01", amount: 7000000 },
+    ],
+  },
+  {
+    id: "7",
+    name: "GreenHouse Agro Ltd",
+    industry: "Agriculture",
+    sector: "Horticulture",
+    description:
+      "Hydroponic vegetable farming supplying premium supermarkets and restaurants in Abuja. Seeking expansion capital for two new greenhouse facilities.",
+    location: "Kubwa, Abuja",
+    yearsOperating: 2,
+    employeeCount: 14,
+    revenueRange: "₦12M–₦20M/yr",
+    fundingGoal: 18000000,
+    amountRaised: 0,
+    minInvestment: 50000,
+    expectedRoi: "20–26%",
+    duration: "24 months",
+    trustScore: 58,
+    riskLevel: "high",
+    riskCategory: "D",
+    verificationStatus: "pending",
+    kybStage: 2,
+    brfrStatus: "green",
+    investmentType: "Profit Share",
+    investorCount: 0,
+    daysLeft: 90,
+    updates: [],
+    milestones: [
+      { id: "m7a", title: "Greenhouse #1 Construction", description: "Build and equip first hydroponic greenhouse", status: "pending", dueDate: "2026-10-01", amount: 9000000 },
+      { id: "m7b", title: "Greenhouse #2 Construction", description: "Second greenhouse and cold storage", status: "pending", dueDate: "2027-03-01", amount: 9000000 },
+    ],
+  },
+  {
+    id: "8",
+    name: "TechBridge Solutions",
+    industry: "Technology",
+    sector: "Fintech",
+    description:
+      "B2B payment infrastructure enabling MSME merchants to accept card and mobile payments across Nigeria. Seeking seed round for hardware deployment.",
+    location: "Ikeja, Lagos",
+    yearsOperating: 1,
+    employeeCount: 8,
+    revenueRange: "₦5M–₦12M/yr",
+    fundingGoal: 12000000,
+    amountRaised: 0,
+    minInvestment: 50000,
+    expectedRoi: "35–45%",
+    duration: "18 months",
+    trustScore: 52,
+    riskLevel: "high",
+    riskCategory: "E",
+    verificationStatus: "pending",
+    kybStage: 1,
+    brfrStatus: "green",
+    investmentType: "Fixed Return",
+    investorCount: 0,
+    daysLeft: 90,
+    updates: [],
+    milestones: [
+      { id: "m8a", title: "POS Terminal Deployment – Batch 1", description: "Deploy 200 terminals to Lagos merchants", status: "pending", dueDate: "2026-09-01", amount: 6000000 },
+      { id: "m8b", title: "Transaction Volume Target", description: "Reach ₦500M monthly transaction volume", status: "pending", dueDate: "2027-01-01", amount: 6000000 },
+    ],
   },
 ];
 

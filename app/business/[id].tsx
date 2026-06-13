@@ -19,8 +19,15 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/AuthContext";
-import { BUSINESSES, formatCurrency } from "@/constants/mockData";
+import { BUSINESSES, BrfrStatus, KYB_STAGES, formatCurrency } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
+
+const BRFR_CONFIG: Record<BrfrStatus, { label: string; color: string; bg: string; dot: string }> = {
+  green:  { label: "Healthy",  color: "#1a7a4a", bg: "#d6f5e7", dot: "#2db56e" },
+  yellow: { label: "Watch",    color: "#9a5800", bg: "#fef3dc", dot: "#e08c1a" },
+  orange: { label: "At Risk",  color: "#a63400", bg: "#fde8d0", dot: "#e06030" },
+  red:    { label: "Critical", color: "#a30000", bg: "#fde8e8", dot: "#e03e3e" },
+};
 
 export default function BusinessDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -35,24 +42,25 @@ export default function BusinessDetail() {
 
   const business = BUSINESSES.find((b) => b.id === id) ?? BUSINESSES[0];
   const progress = business.amountRaised / business.fundingGoal;
+  const brfr = BRFR_CONFIG[business.brfrStatus];
 
   const riskColors: Record<string, { bg: string; text: string; label: string }> = {
-    low: { bg: colors.accentLight, text: colors.accentDark, label: "Low Risk" },
-    medium: { bg: colors.amberLight, text: colors.amber, label: "Medium Risk" },
-    high: { bg: colors.destructiveLight, text: colors.destructive, label: "High Risk" },
+    low:    { bg: colors.accentLight,     text: colors.accentDark,  label: "Low Risk" },
+    medium: { bg: colors.amberLight,      text: colors.amber,       label: "Medium Risk" },
+    high:   { bg: colors.destructiveLight,text: colors.destructive, label: "High Risk" },
   };
   const rc = riskColors[business.riskLevel];
 
   const verColors: Record<string, { bg: string; text: string }> = {
     verified: { bg: colors.accentLight, text: colors.accentDark },
-    partial: { bg: colors.amberLight, text: colors.amber },
-    pending: { bg: colors.muted, text: colors.mutedForeground },
+    partial:  { bg: colors.amberLight,  text: colors.amber },
+    pending:  { bg: colors.muted,       text: colors.mutedForeground },
   };
   const vc = verColors[business.verificationStatus];
 
-  const platformFee = Math.round(parseFloat(amount.replace(/,/g, "") || "0") * 0.01);
-  const investAmount = parseFloat(amount.replace(/,/g, "") || "0");
-  const minRoi = parseInt(business.expectedRoi.split("–")[0]);
+  const platformFee   = Math.round(parseFloat(amount.replace(/,/g, "") || "0") * 0.01);
+  const investAmount  = parseFloat(amount.replace(/,/g, "") || "0");
+  const minRoi        = parseInt(business.expectedRoi.split("–")[0]);
   const expectedReturn = Math.round(investAmount * (1 + minRoi / 100));
 
   const handleInvest = async () => {
@@ -99,7 +107,7 @@ export default function BusinessDetail() {
               <Feather name="layers" size={12} color="#fff" />
               <Text style={styles.industryText}>{business.industry}</Text>
             </View>
-            <View style={[styles.trustScore]}>
+            <View style={styles.trustScore}>
               <Text style={styles.trustNum}>{business.trustScore}</Text>
               <Text style={styles.trustLabel}>Trust</Text>
             </View>
@@ -110,8 +118,10 @@ export default function BusinessDetail() {
             <Text style={styles.heroMetaText}>{business.location}</Text>
             <Text style={styles.dot}>·</Text>
             <Text style={styles.heroMetaText}>{business.yearsOperating} yrs operating</Text>
+            <Text style={styles.dot}>·</Text>
+            <Text style={styles.heroMetaText}>{business.employeeCount} staff</Text>
           </View>
-          <View style={[styles.progressTrack]}>
+          <View style={styles.progressTrack}>
             <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
           </View>
           <View style={styles.fundingRow}>
@@ -126,7 +136,7 @@ export default function BusinessDetail() {
           </View>
         </LinearGradient>
 
-        <View style={[styles.badgeRow]}>
+        <View style={styles.badgeRow}>
           <View style={[styles.badge, { backgroundColor: vc.bg }]}>
             <Feather name="shield" size={12} color={vc.text} />
             <Text style={[styles.badgeText, { color: vc.text }]}>
@@ -137,8 +147,9 @@ export default function BusinessDetail() {
             <Feather name="alert-triangle" size={12} color={rc.text} />
             <Text style={[styles.badgeText, { color: rc.text }]}>{rc.label}</Text>
           </View>
-          <View style={[styles.badge, { backgroundColor: colors.primaryLight }]}>
-            <Text style={[styles.badgeText, { color: colors.primaryDark }]}>Cat. {business.riskCategory}</Text>
+          <View style={[styles.badge, { backgroundColor: brfr.bg }]}>
+            <View style={[styles.brfrDot, { backgroundColor: brfr.dot }]} />
+            <Text style={[styles.badgeText, { color: brfr.color }]}>BRRF: {brfr.label}</Text>
           </View>
           <View style={[styles.badge, { backgroundColor: colors.muted }]}>
             <Feather name="users" size={12} color={colors.mutedForeground} />
@@ -148,15 +159,104 @@ export default function BusinessDetail() {
 
         <Section title="About" colors={colors}>
           <Text style={[styles.desc, { color: colors.mutedForeground }]}>{business.description}</Text>
+          <View style={[styles.revenueRow, { borderTopColor: colors.borderLight }]}>
+            <View style={styles.revItem}>
+              <Feather name="bar-chart-2" size={13} color={colors.primary} />
+              <Text style={[styles.revLabel, { color: colors.mutedForeground }]}>Revenue</Text>
+              <Text style={[styles.revValue, { color: colors.foreground }]}>{business.revenueRange}</Text>
+            </View>
+            <View style={[styles.revDivider, { backgroundColor: colors.borderLight }]} />
+            <View style={styles.revItem}>
+              <Feather name="users" size={13} color={colors.primary} />
+              <Text style={[styles.revLabel, { color: colors.mutedForeground }]}>Employees</Text>
+              <Text style={[styles.revValue, { color: colors.foreground }]}>{business.employeeCount}</Text>
+            </View>
+            <View style={[styles.revDivider, { backgroundColor: colors.borderLight }]} />
+            <View style={styles.revItem}>
+              <Feather name="clock" size={13} color={colors.primary} />
+              <Text style={[styles.revLabel, { color: colors.mutedForeground }]}>Operating</Text>
+              <Text style={[styles.revValue, { color: colors.foreground }]}>{business.yearsOperating} yrs</Text>
+            </View>
+          </View>
+        </Section>
+
+        <Section title="KYB Verification — Stage Progress" colors={colors}>
+          <View style={styles.kybTrack}>
+            {[1, 2, 3, 4, 5].map((s) => (
+              <View key={s} style={styles.kybStep}>
+                <View style={[
+                  styles.kybBubble,
+                  { backgroundColor: s < business.kybStage ? "#2db56e" : s === business.kybStage ? "#1a5e9a" : colors.borderLight },
+                ]}>
+                  {s < business.kybStage ? (
+                    <Feather name="check" size={10} color="#fff" />
+                  ) : (
+                    <Text style={[styles.kybNum, { color: s === business.kybStage ? "#fff" : colors.mutedForeground }]}>{s}</Text>
+                  )}
+                </View>
+                <Text style={[styles.kybStepLabel, { color: s <= business.kybStage ? colors.foreground : colors.mutedForeground }]} numberOfLines={2}>
+                  {KYB_STAGES[s - 1]}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <Text style={[styles.kybCurrent, { color: colors.primary }]}>
+            Current: Stage {business.kybStage} — {KYB_STAGES[business.kybStage - 1]}
+          </Text>
+        </Section>
+
+        <Section title="Milestone Tracker" colors={colors}>
+          {business.milestones.map((m, idx) => {
+            const statusColor = m.status === "completed" ? "#2db56e" : m.status === "active" ? "#1a5e9a" : colors.mutedForeground;
+            const statusBg    = m.status === "completed" ? "#d6f5e7" : m.status === "active" ? "#ddeaf8" : colors.muted;
+            const isLast = idx === business.milestones.length - 1;
+            return (
+              <View key={m.id} style={styles.milestoneRow}>
+                <View style={styles.milestoneLeft}>
+                  <View style={[styles.milestoneBubble, { backgroundColor: statusColor }]}>
+                    {m.status === "completed"
+                      ? <Feather name="check" size={10} color="#fff" />
+                      : m.status === "active"
+                        ? <View style={styles.activeDot} />
+                        : <View style={[styles.activeDot, { backgroundColor: colors.mutedForeground }]} />}
+                  </View>
+                  {!isLast && <View style={[styles.milestoneLine, { backgroundColor: statusColor + "40" }]} />}
+                </View>
+                <View style={[styles.milestoneBody, isLast && { marginBottom: 0 }]}>
+                  <View style={styles.milestoneHeader}>
+                    <Text style={[styles.milestoneTitle, { color: colors.foreground }]}>{m.title}</Text>
+                    <View style={[styles.milestoneBadge, { backgroundColor: statusBg }]}>
+                      <Text style={[styles.milestoneBadgeText, { color: statusColor }]}>
+                        {m.status.charAt(0).toUpperCase() + m.status.slice(1)}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={[styles.milestoneDesc, { color: colors.mutedForeground }]}>{m.description}</Text>
+                  <View style={styles.milestoneMeta}>
+                    <View style={styles.milestoneMetaItem}>
+                      <Feather name="calendar" size={11} color={colors.mutedForeground} />
+                      <Text style={[styles.milestoneMetaText, { color: colors.mutedForeground }]}>{m.dueDate}</Text>
+                    </View>
+                    <View style={styles.milestoneMetaItem}>
+                      <Feather name="lock" size={11} color="#2db56e" />
+                      <Text style={[styles.milestoneMetaText, { color: colors.foreground, fontWeight: "600" }]}>{formatCurrency(m.amount)}</Text>
+                      <Text style={[styles.milestoneMetaText, { color: colors.mutedForeground }]}> escrow</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            );
+          })}
         </Section>
 
         <Section title="Investment Terms" colors={colors}>
           {[
             { label: "Investment Type", value: business.investmentType },
-            { label: "Expected ROI", value: business.expectedRoi, accent: true },
-            { label: "Duration", value: business.duration },
-            { label: "Minimum Investment", value: formatCurrency(business.minInvestment) },
-            { label: "Funding Goal", value: formatCurrency(business.fundingGoal) },
+            { label: "Expected ROI",    value: business.expectedRoi,                    accent: true },
+            { label: "Duration",        value: business.duration },
+            { label: "Minimum",         value: formatCurrency(business.minInvestment) },
+            { label: "Funding Goal",    value: formatCurrency(business.fundingGoal) },
+            { label: "Cat. / Risk",     value: `${business.riskCategory} · ${business.riskLevel}` },
           ].map((row, idx, arr) => (
             <View key={row.label} style={[styles.termRow, idx < arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.borderLight }]}>
               <Text style={[styles.termLabel, { color: colors.mutedForeground }]}>{row.label}</Text>
@@ -167,10 +267,11 @@ export default function BusinessDetail() {
 
         <Section title="Investor Protection" colors={colors}>
           {[
-            { icon: "shield" as const, text: "Funds held in escrow until verified milestone" },
-            { icon: "eye" as const, text: "Real-time monitoring with embedded personnel" },
-            { icon: "file-text" as const, text: "Legal agreement with enforced terms" },
-            { icon: "bar-chart-2" as const, text: "Periodic financial reporting to investors" },
+            { icon: "shield" as const,     text: "Funds held in escrow until each verified milestone is achieved" },
+            { icon: "eye" as const,        text: "Real-time BRRF monitoring — early-warning system active for all funded businesses" },
+            { icon: "file-text" as const,  text: "Legal governance agreement with enforced reporting obligations" },
+            { icon: "bar-chart-2" as const,text: "Monthly/quarterly performance reports submitted to all investors" },
+            { icon: "alert-triangle" as const, text: "If business underperforms, CoFund's BRRF triggers structured recovery — not abandonment" },
           ].map((item) => (
             <View key={item.text} style={styles.protectionRow}>
               <View style={[styles.protectionIcon, { backgroundColor: colors.accentLight }]}>
@@ -248,8 +349,8 @@ export default function BusinessDetail() {
               {[
                 { label: "Investment Amount", value: formatCurrency(investAmount || 0) },
                 { label: "Platform Fee (1%)", value: `-${formatCurrency(platformFee)}` },
-                { label: "Expected ROI", value: business.expectedRoi },
-                { label: "Expected Return", value: formatCurrency(expectedReturn || 0), accent: true },
+                { label: "Expected ROI",      value: business.expectedRoi },
+                { label: "Expected Return",   value: formatCurrency(expectedReturn || 0), accent: true },
               ].map((row, idx, arr) => (
                 <View key={row.label} style={[styles.sumRow, idx < arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.borderLight }]}>
                   <Text style={[styles.sumLabel, { color: colors.mutedForeground }]}>{row.label}</Text>
@@ -261,7 +362,7 @@ export default function BusinessDetail() {
             <View style={[styles.warningBox, { backgroundColor: colors.amberLight, borderRadius: 10, padding: 12 }]}>
               <Feather name="alert-triangle" size={14} color={colors.amber} />
               <Text style={[styles.warningText, { color: colors.amber }]}>
-                All investments carry risk. Past performance does not guarantee future results.
+                All investments carry risk. Funds are held in escrow and released on verified milestones. Past performance does not guarantee future results.
               </Text>
             </View>
 
@@ -277,7 +378,7 @@ export default function BusinessDetail() {
                 ) : (
                   <>
                     <Feather name="lock" size={16} color="#fff" />
-                    <Text style={styles.confirmText}>Confirm Investment</Text>
+                    <Text style={styles.confirmText}>Confirm &amp; Lock in Escrow</Text>
                   </>
                 )}
               </LinearGradient>
@@ -312,7 +413,7 @@ const styles = StyleSheet.create({
   trustNum: { color: "#fff", fontSize: 18, fontWeight: "800", fontFamily: "Inter_700Bold" },
   trustLabel: { color: "rgba(255,255,255,0.65)", fontSize: 9, fontFamily: "Inter_400Regular" },
   heroName: { color: "#fff", fontSize: 22, fontWeight: "800", letterSpacing: -0.5, fontFamily: "Inter_700Bold" },
-  heroMeta: { flexDirection: "row", alignItems: "center", gap: 5 },
+  heroMeta: { flexDirection: "row", alignItems: "center", gap: 5, flexWrap: "wrap" },
   heroMetaText: { color: "rgba(255,255,255,0.65)", fontSize: 12, fontFamily: "Inter_400Regular" },
   dot: { color: "rgba(255,255,255,0.4)" },
   progressTrack: { height: 7, backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 100, overflow: "hidden" },
@@ -326,16 +427,42 @@ const styles = StyleSheet.create({
   badgeRow: { flexDirection: "row", flexWrap: "wrap", gap: 7, marginBottom: 14 },
   badge: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 100 },
   badgeText: { fontSize: 11, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
+  brfrDot: { width: 7, height: 7, borderRadius: 4 },
   section: { marginBottom: 12 },
   sectionTitle: { fontSize: 16, fontWeight: "700", fontFamily: "Inter_700Bold", marginBottom: 8 },
   sectionCard: { borderRadius: 14, borderWidth: 1, padding: 16 },
-  desc: { fontSize: 14, lineHeight: 21, fontFamily: "Inter_400Regular" },
+  desc: { fontSize: 14, lineHeight: 21, fontFamily: "Inter_400Regular", marginBottom: 12 },
+  revenueRow: { flexDirection: "row", borderTopWidth: 1, paddingTop: 12 },
+  revItem: { flex: 1, alignItems: "center", gap: 4 },
+  revLabel: { fontSize: 10, fontFamily: "Inter_400Regular" },
+  revValue: { fontSize: 13, fontWeight: "700", fontFamily: "Inter_700Bold", textAlign: "center" },
+  revDivider: { width: 1 },
+  kybTrack: { flexDirection: "row", gap: 4, marginBottom: 10 },
+  kybStep: { flex: 1, alignItems: "center", gap: 6 },
+  kybBubble: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  kybNum: { fontSize: 11, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  kybStepLabel: { fontSize: 9, textAlign: "center", fontFamily: "Inter_400Regular", lineHeight: 12 },
+  kybCurrent: { fontSize: 12, fontWeight: "600", fontFamily: "Inter_600SemiBold", marginTop: 4 },
+  milestoneRow: { flexDirection: "row", gap: 12, marginBottom: 16 },
+  milestoneLeft: { alignItems: "center", width: 22 },
+  milestoneBubble: { width: 22, height: 22, borderRadius: 11, alignItems: "center", justifyContent: "center" },
+  activeDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#fff" },
+  milestoneLine: { width: 2, flex: 1, marginTop: 4, minHeight: 20, borderRadius: 1 },
+  milestoneBody: { flex: 1, marginBottom: 4 },
+  milestoneHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 4 },
+  milestoneTitle: { flex: 1, fontSize: 13, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
+  milestoneBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 100, marginLeft: 6 },
+  milestoneBadgeText: { fontSize: 10, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
+  milestoneDesc: { fontSize: 12, lineHeight: 16, fontFamily: "Inter_400Regular", marginBottom: 6 },
+  milestoneMeta: { flexDirection: "row", gap: 12, flexWrap: "wrap" },
+  milestoneMetaItem: { flexDirection: "row", alignItems: "center", gap: 4 },
+  milestoneMetaText: { fontSize: 11, fontFamily: "Inter_400Regular" },
   termRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 10 },
   termLabel: { fontSize: 13, fontFamily: "Inter_400Regular" },
   termValue: { fontSize: 13, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
-  protectionRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 8 },
-  protectionIcon: { width: 30, height: 30, borderRadius: 9, alignItems: "center", justifyContent: "center" },
-  protectionText: { flex: 1, fontSize: 13, fontFamily: "Inter_400Regular" },
+  protectionRow: { flexDirection: "row", alignItems: "flex-start", gap: 12, paddingVertical: 8 },
+  protectionIcon: { width: 30, height: 30, borderRadius: 9, alignItems: "center", justifyContent: "center", marginTop: 1 },
+  protectionText: { flex: 1, fontSize: 13, fontFamily: "Inter_400Regular", lineHeight: 18 },
   updateRow: { flexDirection: "row", gap: 12, paddingVertical: 8 },
   updateDot: { width: 8, height: 8, borderRadius: 4, marginTop: 5 },
   updateTitle: { fontSize: 13, fontWeight: "600", fontFamily: "Inter_600SemiBold", marginBottom: 3 },
