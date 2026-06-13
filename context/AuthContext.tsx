@@ -11,9 +11,22 @@ export interface User {
   country: string;
   role: UserRole;
   walletBalance: number;
-  businessName?: string;
   avatar?: string;
   bio?: string;
+  dateOfBirth?: string;
+  bvn?: string;
+  investmentGoal?: string;
+  riskTolerance?: string;
+  investmentExperience?: string;
+  incomeRange?: string;
+  sourceOfFunds?: string;
+  businessName?: string;
+  cacNumber?: string;
+  businessType?: string;
+  yearsOperating?: string;
+  annualRevenue?: string;
+  referralCode?: string;
+  agreedToTerms?: boolean;
 }
 
 interface RegisterData {
@@ -23,7 +36,20 @@ interface RegisterData {
   password: string;
   country: string;
   role: UserRole;
+  dateOfBirth?: string;
+  bvn?: string;
+  investmentGoal?: string;
+  riskTolerance?: string;
+  investmentExperience?: string;
+  incomeRange?: string;
+  sourceOfFunds?: string;
   businessName?: string;
+  cacNumber?: string;
+  businessType?: string;
+  yearsOperating?: string;
+  annualRevenue?: string;
+  referralCode?: string;
+  agreedToTerms?: boolean;
 }
 
 interface AuthContextType {
@@ -47,6 +73,11 @@ const DEMO_USERS: Record<string, User> = {
     country: "Nigeria",
     role: "investor",
     walletBalance: 2500000,
+    investmentGoal: "Grow wealth",
+    riskTolerance: "Medium",
+    investmentExperience: "3-5 years",
+    incomeRange: "₦500k – ₦1M",
+    sourceOfFunds: "Salary/Employment",
   },
   "business@cofund.africa": {
     id: "demo_business",
@@ -57,6 +88,9 @@ const DEMO_USERS: Record<string, User> = {
     role: "business",
     walletBalance: 0,
     businessName: "Lagos Pharma Distributors",
+    businessType: "Limited Liability (LLC)",
+    yearsOperating: "3-5 years",
+    annualRevenue: "₦5M – ₦20M",
   },
 };
 
@@ -100,7 +134,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       country: data.country,
       role: data.role,
       walletBalance: data.role === "investor" ? 2500000 : 0,
+      dateOfBirth: data.dateOfBirth,
+      bvn: data.bvn,
+      investmentGoal: data.investmentGoal,
+      riskTolerance: data.riskTolerance,
+      investmentExperience: data.investmentExperience,
+      incomeRange: data.incomeRange,
+      sourceOfFunds: data.sourceOfFunds,
       businessName: data.businessName,
+      cacNumber: data.cacNumber,
+      businessType: data.businessType,
+      yearsOperating: data.yearsOperating,
+      annualRevenue: data.annualRevenue,
+      referralCode: data.referralCode,
+      agreedToTerms: data.agreedToTerms,
     };
     await persist(u);
   };
