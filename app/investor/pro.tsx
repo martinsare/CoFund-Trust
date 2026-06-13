@@ -221,5 +221,5 @@ const styles = StyleSheet.create({
   subscribeBtn: { borderRadius: 14, overflow: "hidden" },
   subscribeBtnInner: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 16 },
   subscribeBtnText: { color: "#fff", fontSize: 16, fontWeight: "700", fontFamily: "Inter_700Bold" },
-  disclaimer: { textAlign: "center", fontSize: 12, fontFamily: "Inter_400Regular", marginTop: -8 },
+  disclaimer: { textAlign: "center", fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 8 },
 });

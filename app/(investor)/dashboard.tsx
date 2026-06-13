@@ -131,7 +131,7 @@ export default function InvestorDashboard() {
         </View>
       </FadeSlideIn>
       {featured.map((b, i) => (
-        <FadeSlideIn key={b.id} delay={500 + i * 80}>
+        <FadeSlideIn key={b.id} delay={500 + i * 80} style={{ marginBottom: 12 }}>
           <OpportunityCard business={b} onPress={() => router.push(`/business/${b.id}`)} />
         </FadeSlideIn>
       ))}

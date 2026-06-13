@@ -18,40 +18,7 @@ const FILTERS: { id: MarketFilter; label: string }[] = [
   { id: "discount", label: "Discounted" },
 ];
 
-function PremiumBar({ listing, maxAbs, colors }: {
-  listing: MarketListing;
-  maxAbs: number;
-  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
-}) {
-  const val = listing.premiumDiscount;
-  const isDiscount = val < 0;
-  const isPremium = val > 0;
-  const barColor = isDiscount ? colors.accent : isPremium ? colors.amber : colors.mutedForeground;
-  const barWidth = Math.abs(val) / maxAbs;
-  const label = isPremium ? `+${val}%` : `${val}%`;
-  const shortName = listing.businessName.split(" ").slice(0, 2).join(" ");
-
-  return (
-    <View style={barStyles.row}>
-      <Text style={[barStyles.name, { color: colors.mutedForeground }]} numberOfLines={1}>{shortName}</Text>
-      <View style={barStyles.barTrack}>
-        <View style={[barStyles.bar, { width: `${Math.max(barWidth * 100, 4)}%` as any, backgroundColor: barColor }]} />
-      </View>
-      <Text style={[barStyles.pct, { color: barColor, minWidth: 44 }]}>{label === "0%" ? "At par" : label}</Text>
-    </View>
-  );
-}
-
-const barStyles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
-  name: { fontSize: 11, fontFamily: "Inter_400Regular", width: 80 },
-  barTrack: { flex: 1, height: 6, backgroundColor: "#f0f0f0", borderRadius: 3, overflow: "hidden" },
-  bar: { height: 6, borderRadius: 3 },
-  pct: { fontSize: 11, fontWeight: "700", fontFamily: "Inter_700Bold", textAlign: "right" },
-});
-
 function MarketOverviewChart({ colors }: { colors: ReturnType<typeof import("@/hooks/useColors").useColors> }) {
-  const [tick, setTick] = useState(0);
   const pulse = useSharedValue(1);
 
   useEffect(() => {
@@ -60,22 +27,26 @@ function MarketOverviewChart({ colors }: { colors: ReturnType<typeof import("@/h
       -1,
       false
     );
-    const id = setInterval(() => setTick((t) => t + 1), 3000);
-    return () => clearInterval(id);
   }, []);
 
-  const maxAbs = Math.max(...MARKET_LISTINGS.map((m) => Math.abs(m.premiumDiscount)), 1);
+  const total = MARKET_LISTINGS.length;
   const discountCount = MARKET_LISTINGS.filter((m) => m.premiumDiscount < 0).length;
   const premiumCount = MARKET_LISTINGS.filter((m) => m.premiumDiscount > 0).length;
+  const atParCount = total - discountCount - premiumCount;
+  const avgPremium = MARKET_LISTINGS.reduce((s, m) => s + m.premiumDiscount, 0) / total;
+  const bestDiscount = Math.min(...MARKET_LISTINGS.map((m) => m.premiumDiscount));
+  const bestDeal = MARKET_LISTINGS.find((m) => m.premiumDiscount === bestDiscount);
+
+  const discountPct = Math.round((discountCount / total) * 100);
+  const premiumPct = Math.round((premiumCount / total) * 100);
+  const atParPct = 100 - discountPct - premiumPct;
 
   return (
     <View style={[chartStyles.container, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={chartStyles.header}>
         <View>
-          <Text style={[chartStyles.title, { color: colors.foreground }]}>Premium / Discount by Listing</Text>
-          <Text style={[chartStyles.sub, { color: colors.mutedForeground }]}>
-            {discountCount} discounted · {premiumCount} at premium
-          </Text>
+          <Text style={[chartStyles.title, { color: colors.foreground }]}>Market Sentiment</Text>
+          <Text style={[chartStyles.sub, { color: colors.mutedForeground }]}>{total} active listings · updated live</Text>
         </View>
         <View style={chartStyles.liveRow}>
           <Animated.View style={[chartStyles.liveDot, { backgroundColor: colors.accent }]} />
@@ -83,20 +54,56 @@ function MarketOverviewChart({ colors }: { colors: ReturnType<typeof import("@/h
         </View>
       </View>
 
-      <View style={{ marginTop: 12 }}>
-        {MARKET_LISTINGS.map((listing) => (
-          <PremiumBar key={listing.id} listing={listing} maxAbs={maxAbs} colors={colors} />
-        ))}
+      {/* Distribution bar */}
+      <View style={[chartStyles.distBar, { marginTop: 12 }]}>
+        {discountPct > 0 && (
+          <View style={[chartStyles.distSegment, { flex: discountPct, backgroundColor: colors.accent, borderTopLeftRadius: 5, borderBottomLeftRadius: 5 }]} />
+        )}
+        {atParPct > 0 && (
+          <View style={[chartStyles.distSegment, { flex: atParPct, backgroundColor: colors.border }]} />
+        )}
+        {premiumPct > 0 && (
+          <View style={[chartStyles.distSegment, { flex: premiumPct, backgroundColor: colors.amber, borderTopRightRadius: 5, borderBottomRightRadius: 5 }]} />
+        )}
       </View>
 
-      <View style={[chartStyles.legend, { borderTopColor: colors.borderLight }]}>
-        <View style={chartStyles.legendItem}>
-          <View style={[chartStyles.legendDot, { backgroundColor: colors.accent }]} />
-          <Text style={[chartStyles.legendText, { color: colors.mutedForeground }]}>Discount (below face value)</Text>
+      {/* Pill counts */}
+      <View style={chartStyles.pillRow}>
+        <View style={[chartStyles.pill, { backgroundColor: colors.accentLight }]}>
+          <View style={[chartStyles.pillDot, { backgroundColor: colors.accent }]} />
+          <Text style={[chartStyles.pillLabel, { color: colors.accentDark }]}>{discountCount} Discounted</Text>
         </View>
-        <View style={chartStyles.legendItem}>
-          <View style={[chartStyles.legendDot, { backgroundColor: colors.amber }]} />
-          <Text style={[chartStyles.legendText, { color: colors.mutedForeground }]}>Premium (above face value)</Text>
+        {atParCount > 0 && (
+          <View style={[chartStyles.pill, { backgroundColor: colors.muted }]}>
+            <View style={[chartStyles.pillDot, { backgroundColor: colors.mutedForeground }]} />
+            <Text style={[chartStyles.pillLabel, { color: colors.mutedForeground }]}>{atParCount} At par</Text>
+          </View>
+        )}
+        <View style={[chartStyles.pill, { backgroundColor: colors.amberLight }]}>
+          <View style={[chartStyles.pillDot, { backgroundColor: colors.amber }]} />
+          <Text style={[chartStyles.pillLabel, { color: colors.amber }]}>{premiumCount} Premium</Text>
+        </View>
+      </View>
+
+      {/* Key stats row */}
+      <View style={[chartStyles.statsRow, { borderTopColor: colors.borderLight }]}>
+        <View style={chartStyles.statItem}>
+          <Text style={[chartStyles.statVal, { color: avgPremium <= 0 ? colors.accent : colors.amber }]}>
+            {avgPremium > 0 ? "+" : ""}{avgPremium.toFixed(1)}%
+          </Text>
+          <Text style={[chartStyles.statLabel, { color: colors.mutedForeground }]}>Avg premium</Text>
+        </View>
+        <View style={[chartStyles.statDivider, { backgroundColor: colors.borderLight }]} />
+        <View style={chartStyles.statItem}>
+          <Text style={[chartStyles.statVal, { color: colors.accent }]}>{bestDiscount}%</Text>
+          <Text style={[chartStyles.statLabel, { color: colors.mutedForeground }]}>Best discount</Text>
+        </View>
+        <View style={[chartStyles.statDivider, { backgroundColor: colors.borderLight }]} />
+        <View style={chartStyles.statItem}>
+          <Text style={[chartStyles.statVal, { color: colors.foreground }]} numberOfLines={1}>
+            {bestDeal?.businessName.split(" ")[0] ?? "—"}
+          </Text>
+          <Text style={[chartStyles.statLabel, { color: colors.mutedForeground }]}>Best deal</Text>
         </View>
       </View>
     </View>
@@ -111,10 +118,17 @@ const chartStyles = StyleSheet.create({
   liveRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   liveDot: { width: 7, height: 7, borderRadius: 4 },
   liveText: { fontSize: 10, fontWeight: "700", fontFamily: "Inter_700Bold", letterSpacing: 0.5 },
-  legend: { flexDirection: "row", gap: 16, marginTop: 10, paddingTop: 10, borderTopWidth: 1, flexWrap: "wrap" },
-  legendItem: { flexDirection: "row", alignItems: "center", gap: 5 },
-  legendDot: { width: 8, height: 8, borderRadius: 4 },
-  legendText: { fontSize: 10, fontFamily: "Inter_400Regular" },
+  distBar: { flexDirection: "row", height: 10, borderRadius: 5, overflow: "hidden", gap: 2 },
+  distSegment: { height: 10 },
+  pillRow: { flexDirection: "row", gap: 8, marginTop: 10, flexWrap: "wrap" },
+  pill: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 100 },
+  pillDot: { width: 6, height: 6, borderRadius: 3 },
+  pillLabel: { fontSize: 11, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
+  statsRow: { flexDirection: "row", alignItems: "center", marginTop: 12, paddingTop: 12, borderTopWidth: 1 },
+  statItem: { flex: 1, alignItems: "center" },
+  statVal: { fontSize: 15, fontWeight: "800", fontFamily: "Inter_700Bold" },
+  statLabel: { fontSize: 10, fontFamily: "Inter_400Regular", marginTop: 2 },
+  statDivider: { width: 1, height: 28 },
 });
 
 export default function Market() {
