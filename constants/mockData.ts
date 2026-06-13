@@ -59,6 +59,57 @@ export interface Notification {
   type: NotificationType;
 }
 
+export interface MarketListing {
+  id: string;
+  businessId: string;
+  businessName: string;
+  industry: string;
+  sector: string;
+  originalAmount: number;
+  askPrice: number;
+  expectedReturn: number;
+  maturityDate: string;
+  daysToMaturity: number;
+  roi: string;
+  premiumDiscount: number;
+  sellerType: "retail" | "institutional";
+  listedDate: string;
+  trustScore: number;
+}
+
+export interface MessageThread {
+  id: string;
+  businessId: string;
+  businessName: string;
+  industry: string;
+  lastMessage: string;
+  timestamp: string;
+  unread: number;
+  initials: string;
+  color: string;
+}
+
+export interface WalletTransaction {
+  id: string;
+  type: "deposit" | "withdrawal" | "investment" | "return" | "fee";
+  amount: number;
+  description: string;
+  date: string;
+  status: "completed" | "pending";
+}
+
+export interface PortfolioDataPoint {
+  month: string;
+  value: number;
+}
+
+export interface SectorAllocation {
+  sector: string;
+  percentage: number;
+  color: string;
+  amount: number;
+}
+
 export const BUSINESSES: Business[] = [
   {
     id: "1",
@@ -85,16 +136,14 @@ export const BUSINESSES: Business[] = [
       {
         id: "u1",
         title: "Q1 Revenue Report",
-        content:
-          "Achieved ₦180M in revenue for Q1, up 23% from previous quarter. All investor milestones on track.",
+        content: "Achieved ₦180M in revenue for Q1, up 23% from previous quarter. All investor milestones on track.",
         date: "2026-05-15",
         type: "report",
       },
       {
         id: "u2",
         title: "Abuja Branch Lease Signed",
-        content:
-          "Secured premises for the Abuja distribution centre. Renovations begin next week.",
+        content: "Secured premises for the Abuja distribution centre. Renovations begin next week.",
         date: "2026-04-28",
         type: "milestone",
       },
@@ -125,8 +174,7 @@ export const BUSINESSES: Business[] = [
       {
         id: "u3",
         title: "50 Installations Completed",
-        content:
-          "Crossed 50 solar installations milestone. Total capacity: 420 kWp. On track for Q3 targets.",
+        content: "Crossed 50 solar installations milestone. Total capacity: 420 kWp. On track for Q3 targets.",
         date: "2026-05-20",
         type: "milestone",
       },
@@ -157,8 +205,7 @@ export const BUSINESSES: Business[] = [
       {
         id: "u4",
         title: "Machine Delivery Confirmed",
-        content:
-          "First cold-press machine has been delivered. Commissioning scheduled for next week.",
+        content: "First cold-press machine has been delivered. Commissioning scheduled for next week.",
         date: "2026-06-02",
         type: "milestone",
       },
@@ -212,8 +259,7 @@ export const BUSINESSES: Business[] = [
       {
         id: "u5",
         title: "Renovation Phase 1 Complete",
-        content:
-          "Lobby and 18 rooms fully renovated. Reopened to guests with strong initial bookings.",
+        content: "Lobby and 18 rooms fully renovated. Reopened to guests with strong initial bookings.",
         date: "2026-05-30",
         type: "update",
       },
@@ -340,6 +386,184 @@ export const NOTIFICATIONS: Notification[] = [
     read: true,
     type: "opportunity",
   },
+  {
+    id: "n6",
+    title: "Market Listing",
+    body: "A Lagos Pharma investment slot is now listed on the Secondary Market.",
+    time: "3 weeks ago",
+    read: true,
+    type: "investment",
+  },
+];
+
+export const MARKET_LISTINGS: MarketListing[] = [
+  {
+    id: "ml1",
+    businessId: "1",
+    businessName: "Lagos Pharma Distributors",
+    industry: "Pharmaceuticals",
+    sector: "Healthcare",
+    originalAmount: 500000,
+    askPrice: 520000,
+    expectedReturn: 625000,
+    maturityDate: "Aug 2027",
+    daysToMaturity: 426,
+    roi: "25%",
+    premiumDiscount: 4,
+    sellerType: "retail",
+    listedDate: "Jun 10, 2026",
+    trustScore: 87,
+  },
+  {
+    id: "ml2",
+    businessId: "3",
+    businessName: "Kano Agro-Processing Ltd",
+    industry: "Agriculture",
+    sector: "Agro-processing",
+    originalAmount: 1000000,
+    askPrice: 980000,
+    expectedReturn: 1210000,
+    maturityDate: "Jan 2027",
+    daysToMaturity: 212,
+    roi: "21%",
+    premiumDiscount: -2,
+    sellerType: "institutional",
+    listedDate: "Jun 8, 2026",
+    trustScore: 91,
+  },
+  {
+    id: "ml3",
+    businessId: "5",
+    businessName: "Lekki Suites Hotel",
+    industry: "Hospitality",
+    sector: "Hotels",
+    originalAmount: 500000,
+    askPrice: 495000,
+    expectedReturn: 585000,
+    maturityDate: "Sep 2028",
+    daysToMaturity: 820,
+    roi: "17%",
+    premiumDiscount: -1,
+    sellerType: "retail",
+    listedDate: "Jun 5, 2026",
+    trustScore: 83,
+  },
+  {
+    id: "ml4",
+    businessId: "4",
+    businessName: "PH Logistics Fleet",
+    industry: "Logistics",
+    sector: "Transport",
+    originalAmount: 200000,
+    askPrice: 215000,
+    expectedReturn: 256000,
+    maturityDate: "Dec 2026",
+    daysToMaturity: 180,
+    roi: "28%",
+    premiumDiscount: 7.5,
+    sellerType: "institutional",
+    listedDate: "Jun 11, 2026",
+    trustScore: 74,
+  },
+  {
+    id: "ml5",
+    businessId: "2",
+    businessName: "Abuja Solar Energy Co.",
+    industry: "Renewable Energy",
+    sector: "Energy",
+    originalAmount: 300000,
+    askPrice: 310000,
+    expectedReturn: 414000,
+    maturityDate: "Mar 2027",
+    daysToMaturity: 274,
+    roi: "38%",
+    premiumDiscount: 3.3,
+    sellerType: "retail",
+    listedDate: "Jun 9, 2026",
+    trustScore: 79,
+  },
+];
+
+export const MESSAGE_THREADS: MessageThread[] = [
+  {
+    id: "mt1",
+    businessId: "1",
+    businessName: "Lagos Pharma Distributors",
+    industry: "Pharmaceuticals",
+    lastMessage: "Thanks for your continued support! Our Q2 report is attached.",
+    timestamp: "2h ago",
+    unread: 2,
+    initials: "LP",
+    color: "#1a5e9a",
+  },
+  {
+    id: "mt2",
+    businessId: "3",
+    businessName: "Kano Agro-Processing Ltd",
+    industry: "Agriculture",
+    lastMessage: "We've hit the 70% funding milestone! See the latest update.",
+    timestamp: "1d ago",
+    unread: 0,
+    initials: "KA",
+    color: "#2db56e",
+  },
+  {
+    id: "mt3",
+    businessId: "5",
+    businessName: "Lekki Suites Hotel",
+    industry: "Hospitality",
+    lastMessage: "Your quarterly returns have been processed successfully.",
+    timestamp: "3d ago",
+    unread: 1,
+    initials: "LS",
+    color: "#e08c1a",
+  },
+  {
+    id: "mt4",
+    businessId: "2",
+    businessName: "Abuja Solar Energy Co.",
+    industry: "Energy",
+    lastMessage: "Investment matured. Final return of ₦264,000 sent to wallet.",
+    timestamp: "1w ago",
+    unread: 0,
+    initials: "AS",
+    color: "#7c3aed",
+  },
+];
+
+export const WALLET_TRANSACTIONS: WalletTransaction[] = [
+  { id: "tx1", type: "deposit", amount: 2000000, description: "Bank Transfer — Zenith Bank", date: "Jun 1, 2026", status: "completed" },
+  { id: "tx2", type: "investment", amount: -1000000, description: "Investment: Lekki Suites Hotel", date: "Sep 10, 2025", status: "completed" },
+  { id: "tx3", type: "return", amount: 264000, description: "Return: Abuja Solar Energy Co.", date: "Jun 1, 2026", status: "completed" },
+  { id: "tx4", type: "investment", amount: -500000, description: "Investment: Lagos Pharma Distributors", date: "Feb 14, 2026", status: "completed" },
+  { id: "tx5", type: "investment", amount: -300000, description: "Investment: Kano Agro-Processing", date: "Jan 20, 2026", status: "completed" },
+  { id: "tx6", type: "fee", amount: -2640, description: "Platform fee (1%) — Solar return", date: "Jun 1, 2026", status: "completed" },
+  { id: "tx7", type: "deposit", amount: 500000, description: "Bank Transfer — GTBank", date: "Jan 10, 2026", status: "completed" },
+];
+
+export const PORTFOLIO_GROWTH: PortfolioDataPoint[] = [
+  { month: "Jan", value: 500000 },
+  { month: "Feb", value: 1100000 },
+  { month: "Mar", value: 1100000 },
+  { month: "Apr", value: 1800000 },
+  { month: "May", value: 2064000 },
+  { month: "Jun", value: 2000000 },
+];
+
+export const SECTOR_ALLOCATIONS: SectorAllocation[] = [
+  { sector: "Hospitality", percentage: 50, color: "#e08c1a", amount: 1000000 },
+  { sector: "Healthcare", percentage: 25, color: "#1a5e9a", amount: 500000 },
+  { sector: "Agriculture", percentage: 15, color: "#2db56e", amount: 300000 },
+  { sector: "Energy", percentage: 10, color: "#7c3aed", amount: 200000 },
+];
+
+export const BUSINESS_MONTHLY: { month: string; investors: number; raised: number }[] = [
+  { month: "Jan", investors: 8, raised: 2000000 },
+  { month: "Feb", investors: 15, raised: 5500000 },
+  { month: "Mar", investors: 24, raised: 9000000 },
+  { month: "Apr", investors: 32, raised: 13500000 },
+  { month: "May", investors: 41, raised: 16000000 },
+  { month: "Jun", investors: 47, raised: 18750000 },
 ];
 
 export const formatCurrency = (amount: number): string => {

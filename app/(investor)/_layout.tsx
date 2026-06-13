@@ -20,6 +20,10 @@ function NativeTabLayout() {
         <Icon sf={{ default: "magnifyingglass.circle", selected: "magnifyingglass.circle.fill" }} />
         <Label>Explore</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="market">
+        <Icon sf={{ default: "chart.line.uptrend.xyaxis", selected: "chart.line.uptrend.xyaxis.circle.fill" }} />
+        <Label>Market</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="portfolio">
         <Icon sf={{ default: "briefcase", selected: "briefcase.fill" }} />
         <Label>Portfolio</Label>
@@ -75,6 +79,14 @@ function ClassicTabLayout() {
           title: "Explore",
           tabBarIcon: ({ color }) =>
             isIOS ? <SymbolView name="magnifyingglass" tintColor={color} size={22} /> : <Feather name="search" size={22} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="market"
+        options={{
+          title: "Market",
+          tabBarIcon: ({ color }) =>
+            isIOS ? <SymbolView name="chart.line.uptrend.xyaxis" tintColor={color} size={22} /> : <Feather name="repeat" size={22} color={color} />,
         }}
       />
       <Tabs.Screen

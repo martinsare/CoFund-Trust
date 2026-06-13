@@ -16,6 +16,10 @@ function NativeTabLayout() {
         <Icon sf={{ default: "square.grid.2x2", selected: "square.grid.2x2.fill" }} />
         <Label>Dashboard</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="analytics">
+        <Icon sf={{ default: "chart.bar", selected: "chart.bar.fill" }} />
+        <Label>Analytics</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="create">
         <Icon sf={{ default: "doc.badge.plus", selected: "doc.badge.plus.fill" }} />
         <Label>Request</Label>
@@ -67,6 +71,14 @@ function ClassicTabLayout() {
           title: "Dashboard",
           tabBarIcon: ({ color }) =>
             isIOS ? <SymbolView name="square.grid.2x2" tintColor={color} size={22} /> : <Feather name="grid" size={22} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="analytics"
+        options={{
+          title: "Analytics",
+          tabBarIcon: ({ color }) =>
+            isIOS ? <SymbolView name="chart.bar" tintColor={color} size={22} /> : <Feather name="bar-chart-2" size={22} color={color} />,
         }}
       />
       <Tabs.Screen

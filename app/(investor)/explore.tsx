@@ -2,19 +2,12 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React, { useMemo, useState } from "react";
-import {
-  FlatList,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { FlatList, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { BUSINESSES, Business } from "@/constants/mockData";
 import { OpportunityCard } from "@/components/OpportunityCard";
+import { BUSINESSES, Business } from "@/constants/mockData";
 import { useColors } from "@/hooks/useColors";
 
 type Filter = "all" | "low" | "closing" | "high_roi" | "new";
@@ -55,7 +48,10 @@ export default function Explore() {
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: topPad + 8, backgroundColor: colors.background }]}>
+      <Animated.View
+        entering={FadeInDown.delay(0).duration(500)}
+        style={[styles.header, { paddingTop: topPad + 8, backgroundColor: colors.background }]}
+      >
         <Text style={[styles.title, { color: colors.foreground }]}>Explore</Text>
         <Text style={[styles.sub, { color: colors.mutedForeground }]}>
           {BUSINESSES.length} verified opportunities
@@ -88,35 +84,29 @@ export default function Explore() {
                   borderColor: filter === f.id ? colors.primary : colors.border,
                 },
               ]}
-              onPress={() => { setFilter(f.id); Haptics.selectionAsync(); }}
+              onPress={() => {
+                setFilter(f.id);
+                Haptics.selectionAsync();
+              }}
             >
-              <Text
-                style={[
-                  styles.filterText,
-                  { color: filter === f.id ? "#fff" : colors.mutedForeground },
-                ]}
-              >
+              <Text style={[styles.filterText, { color: filter === f.id ? "#fff" : colors.mutedForeground }]}>
                 {f.label}
               </Text>
             </Pressable>
           ))}
         </View>
-      </View>
+      </Animated.View>
 
       <FlatList
         data={filtered}
         keyExtractor={(b) => b.id}
-        renderItem={({ item }) => (
-          <View style={styles.cardWrap}>
+        renderItem={({ item, index }) => (
+          <Animated.View entering={FadeInDown.delay(index * 80).duration(400)} style={styles.cardWrap}>
             <OpportunityCard business={item} onPress={() => router.push(`/business/${item.id}`)} />
-          </View>
+          </Animated.View>
         )}
-        contentContainerStyle={[
-          styles.list,
-          { paddingBottom: bottomPad + 100 },
-        ]}
+        contentContainerStyle={[styles.list, { paddingBottom: bottomPad + 100 }]}
         showsVerticalScrollIndicator={false}
-        scrollEnabled={!!filtered.length}
         ListEmptyComponent={
           <View style={styles.empty}>
             <Feather name="search" size={36} color={colors.border} />
@@ -137,14 +127,8 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: "800", letterSpacing: -0.8, fontFamily: "Inter_700Bold", marginBottom: 2 },
   sub: { fontSize: 13, fontFamily: "Inter_400Regular", marginBottom: 14 },
   searchWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 12,
+    flexDirection: "row", alignItems: "center", gap: 10, borderWidth: 1.5,
+    borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 12,
   },
   searchInput: { flex: 1, fontSize: 14, fontFamily: "Inter_400Regular" },
   filters: { flexDirection: "row", gap: 8, paddingBottom: 6 },

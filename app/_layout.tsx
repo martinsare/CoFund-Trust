@@ -22,16 +22,19 @@ const queryClient = new QueryClient();
 
 function RootLayoutNav() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(investor)" />
       <Stack.Screen name="(business)" />
-      <Stack.Screen
-        name="business/[id]"
-        options={{ headerShown: false, presentation: "card" }}
-      />
+      <Stack.Screen name="business/[id]" options={{ presentation: "card" }} />
+      <Stack.Screen name="investor/analytics" options={{ presentation: "card" }} />
+      <Stack.Screen name="investor/pro" options={{ presentation: "modal" }} />
+      <Stack.Screen name="investor/kyc" options={{ presentation: "card" }} />
+      <Stack.Screen name="investor/referral" options={{ presentation: "card" }} />
+      <Stack.Screen name="investor/messages" options={{ presentation: "card" }} />
+      <Stack.Screen name="notifications" options={{ presentation: "card" }} />
     </Stack>
   );
 }
