@@ -17,7 +17,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
-import { DISPUTE_CATEGORIES as CATEGORIES, INVESTMENTS } from "@/constants/mockData";
+import { useAppData } from "@/context/AppDataContext";
+import { INVESTMENTS } from "@/constants/mockData";
 import { useAuth } from "@/context/AuthContext";
 import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
@@ -28,6 +29,7 @@ export default function InvestorDispute() {
   const { businessId, investmentId } = useLocalSearchParams<{ businessId?: string; investmentId?: string }>();
   const { user } = useAuth();
   const { businesses, disputes, submitDispute } = useSystemData();
+  const { DISPUTE_CATEGORIES: CATEGORIES } = useAppData();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 

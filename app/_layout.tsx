@@ -15,6 +15,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import PinOverlay from "@/components/PinOverlay";
+import { AppDataProvider } from "@/context/AppDataContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { PinProvider, usePin } from "@/context/PinContext";
 import { SystemProvider } from "@/context/SystemContext";
@@ -72,6 +73,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <AuthProvider>
+          <AppDataProvider>
           <PinProvider>
             <SystemProvider>
               <QueryClientProvider client={queryClient}>
@@ -83,6 +85,7 @@ export default function RootLayout() {
               </QueryClientProvider>
             </SystemProvider>
           </PinProvider>
+          </AppDataProvider>
         </AuthProvider>
       </ErrorBoundary>
     </SafeAreaProvider>

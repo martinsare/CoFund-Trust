@@ -7,12 +7,13 @@ import Animated, { FadeInDown, FadeInUp, ZoomIn } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
-import { PRO_BENEFITS as BENEFITS, PRO_PLANS as PLANS } from "@/constants/mockData";
+import { useAppData } from "@/context/AppDataContext";
 import { useColors } from "@/hooks/useColors";
 
 export default function CoFundPro() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { PRO_BENEFITS: BENEFITS, PRO_PLANS: PLANS } = useAppData();
   const [selectedPlan, setSelectedPlan] = useState("quarterly");
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;

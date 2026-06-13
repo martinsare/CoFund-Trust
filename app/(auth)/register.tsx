@@ -22,11 +22,7 @@ import { PressableScale } from "@/components/AnimatedPrimitives";
 import { UserRole, useAuth } from "@/context/AuthContext";
 import { usePin } from "@/context/PinContext";
 import { useSystemData } from "@/context/SystemContext";
-import {
-  ANNUAL_REVENUE, BUSINESS_TYPES, COUNTRIES, EXPERIENCE_OPTIONS,
-  FUND_SOURCES, INCOME_RANGES, INDUSTRIES, INVESTMENT_GOALS,
-  RISK_OPTIONS, YEARS_OPERATING,
-} from "@/constants/mockData";
+import { useAppData } from "@/context/AppDataContext";
 import { useColors } from "@/hooks/useColors";
 
 const TOTAL_STEPS = 5;
@@ -37,6 +33,11 @@ export default function Register() {
   const { register } = useAuth();
   const { createBusiness } = useSystemData();
   const { promptSetup } = usePin();
+  const {
+    ANNUAL_REVENUE, BUSINESS_TYPES, COUNTRIES, EXPERIENCE_OPTIONS,
+    FUND_SOURCES, INCOME_RANGES, INDUSTRIES, INVESTMENT_GOALS,
+    RISK_OPTIONS, YEARS_OPERATING,
+  } = useAppData();
   const scrollRef = useRef<ScrollView>(null);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;

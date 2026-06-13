@@ -18,7 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
 import { useSystemData } from "@/context/SystemContext";
-import { INDUSTRIES, INVESTMENT_TYPES } from "@/constants/mockData";
+import { useAppData } from "@/context/AppDataContext";
 import { useColors } from "@/hooks/useColors";
 
 const RISK_LEVELS = ["low", "medium", "high"] as const;
@@ -27,6 +27,7 @@ export default function AdminCreateBusiness() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { createBusiness } = useSystemData();
+  const { INDUSTRIES, INVESTMENT_TYPES } = useAppData();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 

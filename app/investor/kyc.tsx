@@ -7,12 +7,13 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
-import { KYC_TIERS } from "@/constants/mockData";
+import { useAppData } from "@/context/AppDataContext";
 import { useColors } from "@/hooks/useColors";
 
 export default function KYCScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { KYC_TIERS } = useAppData();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
   const [uploads, setUploads] = useState<Record<string, string>>({});

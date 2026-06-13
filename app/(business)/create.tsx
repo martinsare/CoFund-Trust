@@ -17,12 +17,13 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { INDUSTRIES, INVESTMENT_DURATIONS as DURATIONS, INVESTMENT_TYPES } from "@/constants/mockData";
+import { useAppData } from "@/context/AppDataContext";
 import { useColors } from "@/hooks/useColors";
 
 export default function CreateFundingRequest() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { INDUSTRIES, INVESTMENT_DURATIONS: DURATIONS, INVESTMENT_TYPES } = useAppData();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 

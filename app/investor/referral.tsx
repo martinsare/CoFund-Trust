@@ -8,10 +8,7 @@ import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
-import {
-  MOCK_REFERRAL_HISTORY as HISTORY,
-  REFERRAL_HOW_IT_WORKS as HOW_IT_WORKS,
-} from "@/constants/mockData";
+import { useAppData } from "@/context/AppDataContext";
 import { useColors } from "@/hooks/useColors";
 
 const REFERRAL_CODE = "ADEBAYO-2026";
@@ -19,6 +16,7 @@ const REFERRAL_CODE = "ADEBAYO-2026";
 export default function ReferralScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { MOCK_REFERRAL_HISTORY: HISTORY, REFERRAL_HOW_IT_WORKS: HOW_IT_WORKS } = useAppData();
   const [copied, setCopied] = useState(false);
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;

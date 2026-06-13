@@ -20,13 +20,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
 import { useAuth } from "@/context/AuthContext";
-import { COUNTRIES } from "@/constants/mockData";
+import { useAppData } from "@/context/AppDataContext";
 import { useColors } from "@/hooks/useColors";
 
 export default function EditProfile() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { user, updateProfile } = useAuth();
+  const { COUNTRIES } = useAppData();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 
