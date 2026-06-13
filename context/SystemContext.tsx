@@ -71,7 +71,6 @@ interface SystemContextType {
   deleteDispute: (id: string) => void;
 
   addAdminTransaction: (tx: Omit<AdminTransaction, "id">) => void;
-  updateAdminTransaction: (id: string, patch: Partial<AdminTransaction>) => void;
   deleteAdminTransaction: (id: string) => void;
 
   addAdminListing: (listing: Omit<AdminListing, "id">) => void;
@@ -184,9 +183,6 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
   const addAdminTransaction = (tx: Omit<AdminTransaction, "id">) => {
     setAdminTransactions((prev) => [{ ...tx, id: `wt-${Date.now()}` }, ...prev]);
   };
-  const updateAdminTransaction = (id: string, patch: Partial<AdminTransaction>) => {
-    setAdminTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
-  };
   const deleteAdminTransaction = (id: string) => {
     setAdminTransactions((prev) => prev.filter((t) => t.id !== id));
   };
@@ -215,7 +211,7 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     businesses, currentBusiness, disputes, adminTransactions, adminListings, adminThreads,
     createBusiness, updateBusiness,
     submitDispute, updateDispute, deleteDispute,
-    addAdminTransaction, updateAdminTransaction, deleteAdminTransaction,
+    addAdminTransaction, deleteAdminTransaction,
     addAdminListing, updateAdminListing, deleteAdminListing,
     addAdminThread, updateAdminThread, deleteAdminThread,
   };

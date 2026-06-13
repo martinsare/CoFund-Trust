@@ -7,7 +7,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FadeSlideIn, PressableScale } from "@/components/AnimatedPrimitives";
-import { AdminTransaction, AdminTxStatus, AdminTxType } from "@/constants/mockData";
+import { AdminTxStatus, AdminTxType } from "@/constants/mockData";
 import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
 import { SoundManager } from "@/utils/soundManager";
@@ -39,70 +39,93 @@ export default function ManageTransactions() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
-  const { adminTransactions, addAdminTransaction, updateAdminTransaction, deleteAdminTransaction } = useSystemData();
+  const { adminTransactions, addAdminTransaction, deleteAdminTransaction } = useSystemData();
 
   const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
 
-  function openAdd() { setEditingId(null); setForm(EMPTY_FORM); setShowForm(true); }
-
-  function openEdit(tx: AdminTransaction) {
-    setEditingId(tx.id);
-    setForm({ businessName: tx.businessName, investorName: tx.investorName ?? "", description: tx.description, amount: String(tx.amount), date: tx.date, type: tx.type, status: tx.status });
-    setShowForm(true);
-  }
-
-  function handleSave() {
+  function handleAdd() {
     if (!form.businessName.trim() || !form.description.trim() || !form.amount.trim() || !form.date.trim()) {
-      Alert.alert("Missing Fields", "Please fill in business name, description, amount and date.");
+      Alert.alert("Missing Fields", "Business name, description, amount and date are all required.");
       return;
     }
     const amt = parseFloat(form.amount);
     if (isNaN(amt) || amt <= 0) { Alert.alert("Invalid Amount", "Enter a valid positive number."); return; }
 
-    if (editingId) {
-      updateAdminTransaction(editingId, { businessName: form.businessName, investorName: form.investorName || undefined, description: form.description, amount: amt, date: form.date, type: form.type, status: form.status });
-    } else {
-      addAdminTransaction({ businessId: `biz-${Date.now()}`, businessName: form.businessName, investorName: form.investorName || undefined, description: form.description, amount: amt, date: form.date, type: form.type, status: form.status });
-    }
+    addAdminTransaction({
+      businessId: `biz-${Date.now()}`,
+      businessName: form.businessName,
+      investorName: form.investorName || undefined,
+      description: form.description,
+      amount: amt,
+      date: form.date,
+      type: form.type,
+      status: form.status,
+    });
     SoundManager.success();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setShowForm(false);
-    setEditingId(null);
+    setForm(EMPTY_FORM);
   }
 
-  function handleDelete(tx: AdminTransaction) {
-    Alert.alert("Delete Transaction", `Remove "${tx.description}"? This cannot be undone.`, [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => { deleteAdminTransaction(tx.id); SoundManager.error(); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); } },
-    ]);
+  function handleDelete(id: string, label: string) {
+    Alert.alert(
+      "Remove Transaction",
+      `Remove "${label}"?\n\nThis permanently removes the record. Use a corrective entry (refund/reversal) instead of deleting if the original was valid.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: () => {
+            deleteAdminTransaction(id);
+            SoundManager.error();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          },
+        },
+      ],
+    );
   }
 
-  const totalNet = adminTransactions.reduce((s, t) => s + (t.type === "payout" || t.type === "refund" ? -t.amount : t.amount), 0);
+  const totalNet = adminTransactions.reduce(
+    (s, t) => s + (t.type === "payout" || t.type === "refund" ? -t.amount : t.amount),
+    0,
+  );
 
   return (
-    <ScrollView style={[styles.root, { backgroundColor: colors.background }]} contentContainerStyle={[styles.content, { paddingTop: topPad + 8, paddingBottom: bottomPad + 100 }]} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={[styles.root, { backgroundColor: colors.background }]}
+      contentContainerStyle={[styles.content, { paddingTop: topPad + 8, paddingBottom: bottomPad + 100 }]}
+      showsVerticalScrollIndicator={false}
+    >
       <Animated.View entering={FadeInDown.delay(0).duration(450)} style={styles.topRow}>
         <PressableScale style={[styles.backPill, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={() => router.back()}>
           <Feather name="arrow-left" size={16} color={colors.foreground} />
           <Text style={[styles.backPillText, { color: colors.foreground }]}>Settings</Text>
         </PressableScale>
-        <PressableScale style={[styles.addBtn, { backgroundColor: "#1a5e9a" }]} onPress={openAdd}>
+        <PressableScale style={[styles.addBtn, { backgroundColor: "#1a5e9a" }]} onPress={() => { setForm(EMPTY_FORM); setShowForm(true); }}>
           <Feather name="plus" size={15} color="#fff" />
-          <Text style={styles.addBtnText}>Add</Text>
+          <Text style={styles.addBtnText}>Record</Text>
         </PressableScale>
       </Animated.View>
 
       <Animated.View entering={FadeInDown.delay(40).duration(450)}>
         <Text style={[styles.title, { color: colors.foreground }]}>Wallet Transactions</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>{adminTransactions.length} records · Net: ₦{(totalNet / 1_000_000).toFixed(1)}M</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+          {adminTransactions.length} records · Net ₦{(totalNet / 1_000_000).toFixed(1)}M
+        </Text>
+        <View style={[styles.noticeBanner, { backgroundColor: "#f0f5ff", borderColor: "#c7d9f7" }]}>
+          <Feather name="lock" size={12} color="#1a5e9a" />
+          <Text style={[styles.noticeText, { color: "#1a5e9a" }]}>
+            Records are append-only. To correct an error, record a new reversal or refund entry.
+          </Text>
+        </View>
       </Animated.View>
 
       {showForm && (
         <FadeSlideIn delay={0}>
           <View style={[styles.formCard, { backgroundColor: colors.card, borderColor: "#1a5e9a" }]}>
-            <Text style={[styles.formTitle, { color: colors.foreground }]}>{editingId ? "Edit Transaction" : "New Transaction"}</Text>
+            <Text style={[styles.formTitle, { color: colors.foreground }]}>New Transaction Record</Text>
             <Field label="Business Name *" value={form.businessName} onChange={(v) => setForm((f) => ({ ...f, businessName: v }))} colors={colors} />
             <Field label="Investor / Party Name" value={form.investorName} onChange={(v) => setForm((f) => ({ ...f, investorName: v }))} colors={colors} />
             <Field label="Description *" value={form.description} onChange={(v) => setForm((f) => ({ ...f, description: v }))} colors={colors} />
@@ -111,15 +134,25 @@ export default function ManageTransactions() {
             <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Type</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
               {TX_TYPES.map((t) => (
-                <PressableScale key={t} style={[styles.chip, { backgroundColor: form.type === t ? "#1a5e9a" : colors.borderLight }]} onPress={() => setForm((f) => ({ ...f, type: t }))}>
-                  <Text style={[styles.chipText, { color: form.type === t ? "#fff" : colors.mutedForeground }]}>{TYPE_CONFIG[t].label}</Text>
+                <PressableScale
+                  key={t}
+                  style={[styles.chip, { backgroundColor: form.type === t ? "#1a5e9a" : colors.borderLight }]}
+                  onPress={() => setForm((f) => ({ ...f, type: t }))}
+                >
+                  <Text style={[styles.chipText, { color: form.type === t ? "#fff" : colors.mutedForeground }]}>
+                    {TYPE_CONFIG[t].label}
+                  </Text>
                 </PressableScale>
               ))}
             </ScrollView>
             <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Status</Text>
             <View style={styles.chipRow}>
               {TX_STATUSES.map((s) => (
-                <PressableScale key={s} style={[styles.chip, { backgroundColor: form.status === s ? "#1a5e9a" : colors.borderLight }]} onPress={() => setForm((f) => ({ ...f, status: s }))}>
+                <PressableScale
+                  key={s}
+                  style={[styles.chip, { backgroundColor: form.status === s ? "#1a5e9a" : colors.borderLight }]}
+                  onPress={() => setForm((f) => ({ ...f, status: s }))}
+                >
                   <Text style={[styles.chipText, { color: form.status === s ? "#fff" : colors.mutedForeground }]}>{s}</Text>
                 </PressableScale>
               ))}
@@ -128,8 +161,8 @@ export default function ManageTransactions() {
               <PressableScale style={[styles.cancelBtn, { backgroundColor: colors.muted }]} onPress={() => setShowForm(false)}>
                 <Text style={[styles.cancelBtnText, { color: colors.mutedForeground }]}>Cancel</Text>
               </PressableScale>
-              <PressableScale style={[styles.saveBtn, { backgroundColor: "#1a5e9a" }]} onPress={handleSave}>
-                <Text style={styles.saveBtnText}>{editingId ? "Update" : "Add Record"}</Text>
+              <PressableScale style={[styles.saveBtn, { backgroundColor: "#1a5e9a" }]} onPress={handleAdd}>
+                <Text style={styles.saveBtnText}>Record Transaction</Text>
               </PressableScale>
             </View>
           </View>
@@ -148,7 +181,9 @@ export default function ManageTransactions() {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.rowTitle, { color: colors.foreground }]} numberOfLines={1}>{tx.description}</Text>
-                <Text style={[styles.rowSub, { color: colors.mutedForeground }]}>{tx.businessName}{tx.investorName ? ` · ${tx.investorName}` : ""}</Text>
+                <Text style={[styles.rowSub, { color: colors.mutedForeground }]}>
+                  {tx.businessName}{tx.investorName ? ` · ${tx.investorName}` : ""}
+                </Text>
                 <View style={styles.rowMeta}>
                   <View style={[styles.statusBadge, { backgroundColor: sc.bg }]}>
                     <Text style={[styles.statusText, { color: sc.text }]}>{tx.status}</Text>
@@ -160,14 +195,9 @@ export default function ManageTransactions() {
                 <Text style={[styles.rowAmount, { color: isIncome ? "#2db56e" : "#e03e3e" }]}>
                   {isIncome ? "+" : "-"}₦{(tx.amount / 1000).toFixed(0)}K
                 </Text>
-                <View style={styles.rowActions}>
-                  <PressableScale onPress={() => openEdit(tx)} style={[styles.iconBtn, { backgroundColor: "#ddeaf8" }]}>
-                    <Feather name="edit-2" size={13} color="#1a5e9a" />
-                  </PressableScale>
-                  <PressableScale onPress={() => handleDelete(tx)} style={[styles.iconBtn, { backgroundColor: "#fde8e8" }]}>
-                    <Feather name="trash-2" size={13} color="#e03e3e" />
-                  </PressableScale>
-                </View>
+                <PressableScale onPress={() => handleDelete(tx.id, tx.description)} style={[styles.iconBtn, { backgroundColor: "#fde8e8" }]}>
+                  <Feather name="trash-2" size={13} color="#e03e3e" />
+                </PressableScale>
               </View>
             </View>
           </FadeSlideIn>
@@ -177,11 +207,19 @@ export default function ManageTransactions() {
   );
 }
 
-function Field({ label, value, onChange, colors, keyboardType }: { label: string; value: string; onChange: (v: string) => void; colors: any; keyboardType?: any }) {
+function Field({ label, value, onChange, colors, keyboardType }: {
+  label: string; value: string; onChange: (v: string) => void; colors: any; keyboardType?: any;
+}) {
   return (
     <View style={{ marginBottom: 10 }}>
       <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>{label}</Text>
-      <TextInput style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.foreground }]} value={value} onChangeText={onChange} keyboardType={keyboardType} placeholderTextColor={colors.mutedForeground} />
+      <TextInput
+        style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.foreground }]}
+        value={value}
+        onChangeText={onChange}
+        keyboardType={keyboardType}
+        placeholderTextColor={colors.mutedForeground}
+      />
     </View>
   );
 }
@@ -195,7 +233,9 @@ const styles = StyleSheet.create({
   addBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 9, borderRadius: 10 },
   addBtnText: { color: "#fff", fontSize: 13, fontWeight: "700", fontFamily: "Inter_700Bold" },
   title: { fontSize: 26, fontWeight: "800", fontFamily: "Inter_700Bold", letterSpacing: -0.6, marginBottom: 4 },
-  subtitle: { fontSize: 13, fontFamily: "Inter_400Regular", marginBottom: 16 },
+  subtitle: { fontSize: 13, fontFamily: "Inter_400Regular", marginBottom: 10 },
+  noticeBanner: { flexDirection: "row", alignItems: "flex-start", gap: 8, borderRadius: 10, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 9, marginBottom: 16 },
+  noticeText: { fontSize: 12, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 17 },
   formCard: { borderRadius: 16, borderWidth: 2, padding: 16, marginBottom: 16 },
   formTitle: { fontSize: 16, fontWeight: "700", fontFamily: "Inter_700Bold", marginBottom: 14 },
   fieldLabel: { fontSize: 12, fontWeight: "600", fontFamily: "Inter_600SemiBold", marginBottom: 6 },
@@ -218,6 +258,5 @@ const styles = StyleSheet.create({
   rowDate: { fontSize: 11, fontFamily: "Inter_400Regular" },
   rowRight: { alignItems: "flex-end", gap: 8 },
   rowAmount: { fontSize: 14, fontWeight: "700", fontFamily: "Inter_700Bold" },
-  rowActions: { flexDirection: "row", gap: 6 },
   iconBtn: { width: 30, height: 30, borderRadius: 8, alignItems: "center", justifyContent: "center" },
 });
