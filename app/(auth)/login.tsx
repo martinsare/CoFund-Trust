@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
 import { usePin } from "@/context/PinContext";
 import { useColors } from "@/hooks/useColors";
+import { SoundManager } from "@/utils/soundManager";
 
 export default function Login() {
   const colors = useColors();
@@ -50,7 +51,9 @@ export default function Login() {
         setTimeout(promptSetup, 600);
       }
     } catch {
-      setError("Login failed. Please try again.");
+      SoundManager.error();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      setError("Login failed. Please check your credentials and try again.");
     } finally {
       setLoading(false);
     }
@@ -149,6 +152,12 @@ export default function Login() {
               <Text style={styles.btnText}>Sign In</Text>
             )}
           </LinearGradient>
+        </Pressable>
+
+        <Pressable onPress={() => router.push("/(auth)/forgot-password")} style={{ alignSelf: "center", marginTop: -8, marginBottom: 4 }}>
+          <Text style={[styles.switchText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+            Forgot Password?
+          </Text>
         </Pressable>
 
         <Pressable onPress={() => router.push("/(auth)/register")}>

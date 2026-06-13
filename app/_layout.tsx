@@ -18,6 +18,7 @@ import PinOverlay from "@/components/PinOverlay";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { PinProvider, usePin } from "@/context/PinContext";
 import { SystemProvider } from "@/context/SystemContext";
+import { SoundManager } from "@/utils/soundManager";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -61,6 +62,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
+      SoundManager.preload();
     }
   }, [fontsLoaded, fontError]);
 

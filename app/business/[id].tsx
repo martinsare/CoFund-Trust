@@ -22,6 +22,7 @@ import { useAuth } from "@/context/AuthContext";
 import { BUSINESSES, BrfrStatus, KYB_STAGES, formatCurrency } from "@/constants/mockData";
 import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
+import { SoundManager } from "@/utils/soundManager";
 
 const BRFR_CONFIG: Record<BrfrStatus, { label: string; color: string; bg: string; dot: string }> = {
   green:  { label: "Healthy",  color: "#1a7a4a", bg: "#d6f5e7", dot: "#2db56e" },
@@ -80,6 +81,7 @@ export default function BusinessDetail() {
     await updateWallet(-numAmount - platformFee);
     setLoading(false);
     setInvestModal(false);
+    SoundManager.success();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     Alert.alert(
       "Investment Confirmed!",

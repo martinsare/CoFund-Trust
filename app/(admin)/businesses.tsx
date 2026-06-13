@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { SoundManager } from "@/utils/soundManager";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
@@ -191,6 +192,7 @@ export default function AdminBusinesses() {
                     style={[styles.actionBtn, { backgroundColor: "#d6f5e7", borderColor: "#2db56e" }]}
                     onPress={() => {
                       updateBusiness(b.id, { verificationStatus: "verified", kybStage: 5 });
+                      SoundManager.success();
                       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                     }}
                   >
@@ -201,6 +203,7 @@ export default function AdminBusinesses() {
                     style={[styles.actionBtn, { backgroundColor: "#fde8e8", borderColor: "#e03e3e" }]}
                     onPress={() => {
                       updateBusiness(b.id, { verificationStatus: "partial", kybStage: Math.min(b.kybStage, 3) as 1 | 2 | 3 | 4 | 5 });
+                      SoundManager.error();
                       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
                     }}
                   >

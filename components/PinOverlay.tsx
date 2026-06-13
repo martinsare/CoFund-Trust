@@ -1,8 +1,10 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Animated,
   Platform,
   Pressable,
@@ -14,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/AuthContext";
 import { usePin } from "@/context/PinContext";
+import { SoundManager } from "@/utils/soundManager";
 
 const PIN_LENGTH = 4;
 
@@ -34,12 +37,12 @@ function useCooldownTick(cooldownUntil: number) {
 
 export default function PinOverlay() {
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const {
     screen, pinEnabled, biometricAvailable, biometricLabel,
     failCount, cooldownUntil,
     setupPin, verifyPin, authenticateWithBiometrics,
-    unlock, dismissSetup, advanceSetup, recordFailure,
+    unlock, dismissSetup, advanceSetup, recordFailure, disablePin,
   } = usePin();
 
   const [pin, setPin] = useState("");
@@ -85,10 +88,28 @@ export default function PinOverlay() {
     setSetupSuccess(false);
   }, [screen, resetEntry]);
 
+  const handleForgotPin = useCallback(() => {
+    Alert.alert(
+      "Forgot PIN?",
+      "To reset your PIN, you'll be signed out. You can set a new PIN after signing back in with your password.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Sign Out & Reset",
+          style: "destructive",
+          onPress: async () => {
+            await disablePin();
+            await logout();
+          },
+        },
+      ]
+    );
+  }, [disablePin, logout]);
+
   const tryBiometrics = useCallback(async () => {
     const ok = await authenticateWithBiometrics();
-    if (ok) unlock();
-    else setError(`${biometricLabel} failed. Enter your PIN.`);
+    if (ok) { SoundManager.unlock(); unlock(); }
+    else { SoundManager.error(); setError(`${biometricLabel} failed. Enter your PIN.`); }
   }, [authenticateWithBiometrics, unlock, biometricLabel]);
 
   useEffect(() => {
@@ -102,6 +123,7 @@ export default function PinOverlay() {
     if (cooldownRemaining > 0) return;
     const next = pin + digit;
     if (next.length > PIN_LENGTH) return;
+    SoundManager.pinClick();
     Haptics.selectionAsync();
     animateDot(pin.length);
     setPin(next);
@@ -111,9 +133,11 @@ export default function PinOverlay() {
       setTimeout(() => {
         if (isLock) {
           if (verifyPin(next)) {
+            SoundManager.unlock();
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             unlock();
           } else {
+            SoundManager.error();
             shake();
             recordFailure();
             setError(failCount >= 4 ? "Too many attempts. Wait 30s." : `Incorrect PIN. ${4 - failCount} attempt${4 - failCount === 1 ? "" : "s"} left.`);
@@ -126,8 +150,10 @@ export default function PinOverlay() {
           if (next === firstPinRef.current) {
             setSetupSuccess(true);
             setupPin(next);
+            SoundManager.success();
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           } else {
+            SoundManager.error();
             shake();
             setError("PINs don't match. Try again.");
             setPin("");
@@ -292,7 +318,11 @@ export default function PinOverlay() {
             <Pressable onPress={dismissSetup}>
               <Text style={styles.skipText}>Maybe Later</Text>
             </Pressable>
-          ) : isLock && !pinEnabled ? null : null}
+          ) : isLock ? (
+            <Pressable onPress={handleForgotPin}>
+              <Text style={styles.skipText}>Forgot PIN?</Text>
+            </Pressable>
+          ) : null}
         </View>
       </View>
     </View>
