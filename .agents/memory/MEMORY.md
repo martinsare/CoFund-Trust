@@ -1,0 +1,4 @@
+- [Expo workflow config](expo-workflow.md) — Metro server needs EXPO_PACKAGER_PROXY_URL + --localhost flag to work on Replit
+- [PIN & biometric auth](pin-auth.md) — banking-style overlay system using expo-local-authentication + expo-secure-store
+- [Business registration flow](business-registration.md) — businesses self-register; createBusiness() called after register() to create pending record
+- [SystemContext currentBusiness](system-context.md) — removed ?? businesses[0] fallback; null means truly unregistered

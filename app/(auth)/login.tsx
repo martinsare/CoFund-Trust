@@ -18,12 +18,14 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/AuthContext";
+import { usePin } from "@/context/PinContext";
 import { useColors } from "@/hooks/useColors";
 
 export default function Login() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { login } = useAuth();
+  const { pinEnabled, promptSetup } = usePin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -44,6 +46,9 @@ export default function Login() {
       await login(email.trim(), password);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace("/");
+      if (!pinEnabled) {
+        setTimeout(promptSetup, 600);
+      }
     } catch {
       setError("Login failed. Please try again.");
     } finally {

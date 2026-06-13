@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PressableScale } from "@/components/AnimatedPrimitives";
 import { UserRole, useAuth } from "@/context/AuthContext";
+import { usePin } from "@/context/PinContext";
 import { useSystemData } from "@/context/SystemContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -47,6 +48,7 @@ export default function Register() {
   const insets = useSafeAreaInsets();
   const { register } = useAuth();
   const { createBusiness } = useSystemData();
+  const { promptSetup } = usePin();
   const scrollRef = useRef<ScrollView>(null);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -188,6 +190,7 @@ export default function Register() {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       if (role === "investor") router.replace("/(investor)/dashboard");
       else router.replace("/(business)/dashboard");
+      setTimeout(promptSetup, 600);
     } catch {
       setError("Registration failed. Please try again.");
     } finally {

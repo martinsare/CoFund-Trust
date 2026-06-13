@@ -14,30 +14,39 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { AuthProvider } from "@/context/AuthContext";
+import PinOverlay from "@/components/PinOverlay";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { PinProvider, usePin } from "@/context/PinContext";
 import { SystemProvider } from "@/context/SystemContext";
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
-function RootLayoutNav() {
+function AppWithPin() {
+  const { user, isLoading } = useAuth();
+  const { screen } = usePin();
+  const showOverlay = !isLoading && !!user && (screen === "lock" || screen === "setup-enter" || screen === "setup-confirm");
+
   return (
-    <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="onboarding" />
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(investor)" />
-      <Stack.Screen name="(business)" />
-      <Stack.Screen name="(admin)" />
-      <Stack.Screen name="business/[id]" options={{ presentation: "card" }} />
-      <Stack.Screen name="investor/analytics" options={{ presentation: "card" }} />
-      <Stack.Screen name="investor/pro" options={{ presentation: "modal" }} />
-      <Stack.Screen name="investor/kyc" options={{ presentation: "card" }} />
-      <Stack.Screen name="investor/referral" options={{ presentation: "card" }} />
-      <Stack.Screen name="investor/messages" options={{ presentation: "card" }} />
-      <Stack.Screen name="notifications" options={{ presentation: "card" }} />
-    </Stack>
+    <>
+      <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(investor)" />
+        <Stack.Screen name="(business)" />
+        <Stack.Screen name="(admin)" />
+        <Stack.Screen name="business/[id]" options={{ presentation: "card" }} />
+        <Stack.Screen name="investor/analytics" options={{ presentation: "card" }} />
+        <Stack.Screen name="investor/pro" options={{ presentation: "modal" }} />
+        <Stack.Screen name="investor/kyc" options={{ presentation: "card" }} />
+        <Stack.Screen name="investor/referral" options={{ presentation: "card" }} />
+        <Stack.Screen name="investor/messages" options={{ presentation: "card" }} />
+        <Stack.Screen name="notifications" options={{ presentation: "card" }} />
+      </Stack>
+      {showOverlay && <PinOverlay />}
+    </>
   );
 }
 
@@ -61,15 +70,17 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <AuthProvider>
-          <SystemProvider>
-            <QueryClientProvider client={queryClient}>
-              <GestureHandlerRootView>
-                <KeyboardProvider>
-                  <RootLayoutNav />
-                </KeyboardProvider>
-              </GestureHandlerRootView>
-            </QueryClientProvider>
-          </SystemProvider>
+          <PinProvider>
+            <SystemProvider>
+              <QueryClientProvider client={queryClient}>
+                <GestureHandlerRootView>
+                  <KeyboardProvider>
+                    <AppWithPin />
+                  </KeyboardProvider>
+                </GestureHandlerRootView>
+              </QueryClientProvider>
+            </SystemProvider>
+          </PinProvider>
         </AuthProvider>
       </ErrorBoundary>
     </SafeAreaProvider>

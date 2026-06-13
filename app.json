@@ -40,7 +40,8 @@
           "color": "#1a5e9a",
           "sounds": []
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
