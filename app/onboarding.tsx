@@ -80,11 +80,12 @@ export default function Onboarding() {
             <Text style={styles.btnPrimaryText}>Invest</Text>
           </PressableScale>
           <View style={styles.btnRow}>
-            <PressableScale style={[styles.btnHalf, { backgroundColor: "rgba(255,255,255,0.12)", borderColor: "rgba(255,255,255,0.25)" }]} onPress={() => router.push("/(auth)/register")}>
+            <PressableScale wrapperStyle={{ flex: 1 }} style={[styles.btnHalf, { backgroundColor: "rgba(255,255,255,0.12)", borderColor: "rgba(255,255,255,0.25)" }]} onPress={() => router.push("/(auth)/register")}>
               <Feather name="briefcase" size={15} color="#fff" />
               <Text style={styles.btnHalfText}>Raise Capital</Text>
             </PressableScale>
-            <PressableScale style={[styles.btnHalf, { backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.15)" }]} onPress={() => router.push("/(auth)/login")}>
+            <PressableScale wrapperStyle={{ flex: 1 }} style={[styles.btnHalf, { backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.15)" }]} onPress={() => router.push("/(auth)/login")}>
+              <Feather name="log-in" size={15} color="#fff" />
               <Text style={styles.btnHalfText}>Sign In</Text>
             </PressableScale>
           </View>
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
   btnInvest: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: "#2db56e", borderRadius: 12, paddingVertical: 15 },
   btnPrimaryText: { color: "#fff", fontSize: 16, fontWeight: "700", fontFamily: "Inter_700Bold" },
   btnRow: { flexDirection: "row", gap: 10 },
-  btnHalf: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, borderRadius: 12, paddingVertical: 13, borderWidth: 1 },
+  btnHalf: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, borderRadius: 12, paddingVertical: 13, borderWidth: 1 },
   btnHalfText: { color: "#fff", fontSize: 14, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   bottom: { textAlign: "center", fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "Inter_400Regular" },
 });

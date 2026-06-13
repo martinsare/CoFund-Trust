@@ -54,6 +54,7 @@ interface PressableScaleProps {
   onPress?: () => void;
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  wrapperStyle?: StyleProp<ViewStyle>;
   disabled?: boolean;
 }
 
@@ -61,6 +62,7 @@ export function PressableScale({
   onPress,
   children,
   style,
+  wrapperStyle,
   disabled,
 }: PressableScaleProps) {
   const scale = useSharedValue(1);
@@ -69,6 +71,7 @@ export function PressableScale({
   }));
   return (
     <Pressable
+      style={wrapperStyle}
       onPressIn={() => {
         scale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
       }}
